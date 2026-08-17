@@ -1,0 +1,888 @@
+{
+  "name": "copilot-bridge",
+  "displayName": "Copilot Bridge",
+  "description": "Enables VS Code Copilot AI features for users via their existing third-party AI coding plans and LLM subscriptions.",
+  "version": "0.1.0",
+  "publisher": "thejjw",
+  "license": "zlib-acknowledgement",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thejjw/copilot-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thejjw/copilot-bridge/issues"
+  },
+  "engines": {
+    "vscode": "^1.122.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "copilot",
+    "byok",
+    "vision",
+    "mcp",
+    "tools",
+    "usage",
+    "quota",
+    "llm",
+    "ai",
+    "customendpoint"
+  ],
+  "icon": "media/icon.png",
+  "main": "dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:copilot-bridge.quickSetup",
+    "onCommand:copilot-bridge.addModel",
+    "onCommand:copilot-bridge.removeModel",
+    "onCommand:copilot-bridge.listModels",
+    "onCommand:copilot-bridge.configureMcp",
+    "onCommand:copilot-bridge.removeMcp",
+    "onCommand:copilot-bridge.configureUsageKey",
+    "onCommand:copilot-bridge.selectStatusBarProvider",
+    "onCommand:copilot-bridge.refreshUsage",
+    "onCommand:copilot-bridge.selectVisionModel",
+    "onCommand:copilot-bridge.runDiagnostics",
+    "onCommand:copilot-bridge.showDebugLogs",
+    "onCommand:copilot-bridge.toggleDebugLogging",
+    "onCommand:copilot-bridge.resetConfiguration"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Copilot Bridge",
+      "properties": {
+        "copilotBridge.debugLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose debug logging to Output Channel and local log file for troubleshooting endpoint issues."
+        }
+      }
+    },
+    "languageModelTools": [
+      {
+        "name": "copilot_bridge_analyze_visual",
+        "displayName": "Analyze Image / Visual Asset (Copilot Bridge)",
+        "modelDescription": "Inspect and analyze an image file (PNG, JPG, WebP), UI screenshot, diagram, or mockup. Use this tool when you need visual understanding, OCR text extraction, layout descriptions, or architecture analysis for any image.",
+        "icon": "$(eye)",
+        "toolReferenceName": "vision",
+        "canBeReferencedInPrompt": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "Local workspace-relative or absolute file path to the image file (e.g. './assets/mockup.png')."
+            },
+            "image_url": {
+              "type": "string",
+              "description": "Remote image URL (https://...) or base64 data URL."
+            },
+            "prompt": {
+              "type": "string",
+              "description": "Specific question, instruction, or analysis goal for the image."
+            }
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "copilot-bridge.quickSetup",
+        "title": "Copilot Bridge: Quick Setup (Models & MCP Tools)",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.addModel",
+        "title": "Copilot Bridge: Add Model",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.removeModel",
+        "title": "Copilot Bridge: Remove Model",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.listModels",
+        "title": "Copilot Bridge: List Models",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.configureMcp",
+        "title": "Copilot Bridge: Configure MCP Tools",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.removeMcp",
+        "title": "Copilot Bridge: Remove MCP Server",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.configureUsageKey",
+        "title": "Copilot Bridge: Configure Usage API Key",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.selectStatusBarProvider",
+        "title": "Copilot Bridge: Select Pinned Status Bar Provider",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.refreshUsage",
+        "title": "Copilot Bridge: Refresh Plan Quotas & Balances",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.selectVisionModel",
+        "title": "Copilot Bridge: Select Vision Agent Model",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.runDiagnostics",
+        "title": "Copilot Bridge: Run Diagnostics & Connectivity Test",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.showDebugLogs",
+        "title": "Copilot Bridge: Show Debug Output Logs",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.toggleDebugLogging",
+        "title": "Copilot Bridge: Toggle Debug Logging",
+        "category": "Copilot Bridge"
+      },
+      {
+        "command": "copilot-bridge.resetConfiguration",
+        "title": "Copilot Bridge: Reset All Configuration & Clear Secrets",
+        "category": "Copilot Bridge"
+      }
+    ],
+    "icons": {
+      "copilot-bridge-p0": {
+        "description": "Quota remaining: 0%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:0}"
+        }
+      },
+      "copilot-bridge-p1": {
+        "description": "Quota remaining: 1%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:1}"
+        }
+      },
+      "copilot-bridge-p2": {
+        "description": "Quota remaining: 2%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:2}"
+        }
+      },
+      "copilot-bridge-p3": {
+        "description": "Quota remaining: 3%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:3}"
+        }
+      },
+      "copilot-bridge-p4": {
+        "description": "Quota remaining: 4%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:4}"
+        }
+      },
+      "copilot-bridge-p5": {
+        "description": "Quota remaining: 5%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:5}"
+        }
+      },
+      "copilot-bridge-p6": {
+        "description": "Quota remaining: 6%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:6}"
+        }
+      },
+      "copilot-bridge-p7": {
+        "description": "Quota remaining: 7%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:7}"
+        }
+      },
+      "copilot-bridge-p8": {
+        "description": "Quota remaining: 8%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:8}"
+        }
+      },
+      "copilot-bridge-p9": {
+        "description": "Quota remaining: 9%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:9}"
+        }
+      },
+      "copilot-bridge-p10": {
+        "description": "Quota remaining: 10%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:10}"
+        }
+      },
+      "copilot-bridge-p11": {
+        "description": "Quota remaining: 11%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:11}"
+        }
+      },
+      "copilot-bridge-p12": {
+        "description": "Quota remaining: 12%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:12}"
+        }
+      },
+      "copilot-bridge-p13": {
+        "description": "Quota remaining: 13%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:13}"
+        }
+      },
+      "copilot-bridge-p14": {
+        "description": "Quota remaining: 14%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:14}"
+        }
+      },
+      "copilot-bridge-p15": {
+        "description": "Quota remaining: 15%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:15}"
+        }
+      },
+      "copilot-bridge-p16": {
+        "description": "Quota remaining: 16%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:16}"
+        }
+      },
+      "copilot-bridge-p17": {
+        "description": "Quota remaining: 17%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:17}"
+        }
+      },
+      "copilot-bridge-p18": {
+        "description": "Quota remaining: 18%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:18}"
+        }
+      },
+      "copilot-bridge-p19": {
+        "description": "Quota remaining: 19%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:19}"
+        }
+      },
+      "copilot-bridge-p20": {
+        "description": "Quota remaining: 20%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:20}"
+        }
+      },
+      "copilot-bridge-p21": {
+        "description": "Quota remaining: 21%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:21}"
+        }
+      },
+      "copilot-bridge-p22": {
+        "description": "Quota remaining: 22%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:22}"
+        }
+      },
+      "copilot-bridge-p23": {
+        "description": "Quota remaining: 23%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:23}"
+        }
+      },
+      "copilot-bridge-p24": {
+        "description": "Quota remaining: 24%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:24}"
+        }
+      },
+      "copilot-bridge-p25": {
+        "description": "Quota remaining: 25%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:25}"
+        }
+      },
+      "copilot-bridge-p26": {
+        "description": "Quota remaining: 26%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:26}"
+        }
+      },
+      "copilot-bridge-p27": {
+        "description": "Quota remaining: 27%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:27}"
+        }
+      },
+      "copilot-bridge-p28": {
+        "description": "Quota remaining: 28%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:28}"
+        }
+      },
+      "copilot-bridge-p29": {
+        "description": "Quota remaining: 29%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:29}"
+        }
+      },
+      "copilot-bridge-p30": {
+        "description": "Quota remaining: 30%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:30}"
+        }
+      },
+      "copilot-bridge-p31": {
+        "description": "Quota remaining: 31%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:31}"
+        }
+      },
+      "copilot-bridge-p32": {
+        "description": "Quota remaining: 32%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:32}"
+        }
+      },
+      "copilot-bridge-p33": {
+        "description": "Quota remaining: 33%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:33}"
+        }
+      },
+      "copilot-bridge-p34": {
+        "description": "Quota remaining: 34%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:34}"
+        }
+      },
+      "copilot-bridge-p35": {
+        "description": "Quota remaining: 35%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:35}"
+        }
+      },
+      "copilot-bridge-p36": {
+        "description": "Quota remaining: 36%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:36}"
+        }
+      },
+      "copilot-bridge-p37": {
+        "description": "Quota remaining: 37%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:37}"
+        }
+      },
+      "copilot-bridge-p38": {
+        "description": "Quota remaining: 38%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:38}"
+        }
+      },
+      "copilot-bridge-p39": {
+        "description": "Quota remaining: 39%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:39}"
+        }
+      },
+      "copilot-bridge-p40": {
+        "description": "Quota remaining: 40%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:40}"
+        }
+      },
+      "copilot-bridge-p41": {
+        "description": "Quota remaining: 41%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:41}"
+        }
+      },
+      "copilot-bridge-p42": {
+        "description": "Quota remaining: 42%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:42}"
+        }
+      },
+      "copilot-bridge-p43": {
+        "description": "Quota remaining: 43%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:43}"
+        }
+      },
+      "copilot-bridge-p44": {
+        "description": "Quota remaining: 44%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:44}"
+        }
+      },
+      "copilot-bridge-p45": {
+        "description": "Quota remaining: 45%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:45}"
+        }
+      },
+      "copilot-bridge-p46": {
+        "description": "Quota remaining: 46%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:46}"
+        }
+      },
+      "copilot-bridge-p47": {
+        "description": "Quota remaining: 47%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:47}"
+        }
+      },
+      "copilot-bridge-p48": {
+        "description": "Quota remaining: 48%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:48}"
+        }
+      },
+      "copilot-bridge-p49": {
+        "description": "Quota remaining: 49%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:49}"
+        }
+      },
+      "copilot-bridge-p50": {
+        "description": "Quota remaining: 50%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:50}"
+        }
+      },
+      "copilot-bridge-p51": {
+        "description": "Quota remaining: 51%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:51}"
+        }
+      },
+      "copilot-bridge-p52": {
+        "description": "Quota remaining: 52%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:52}"
+        }
+      },
+      "copilot-bridge-p53": {
+        "description": "Quota remaining: 53%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:53}"
+        }
+      },
+      "copilot-bridge-p54": {
+        "description": "Quota remaining: 54%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:54}"
+        }
+      },
+      "copilot-bridge-p55": {
+        "description": "Quota remaining: 55%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:55}"
+        }
+      },
+      "copilot-bridge-p56": {
+        "description": "Quota remaining: 56%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:56}"
+        }
+      },
+      "copilot-bridge-p57": {
+        "description": "Quota remaining: 57%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:57}"
+        }
+      },
+      "copilot-bridge-p58": {
+        "description": "Quota remaining: 58%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:58}"
+        }
+      },
+      "copilot-bridge-p59": {
+        "description": "Quota remaining: 59%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:59}"
+        }
+      },
+      "copilot-bridge-p60": {
+        "description": "Quota remaining: 60%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:60}"
+        }
+      },
+      "copilot-bridge-p61": {
+        "description": "Quota remaining: 61%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:61}"
+        }
+      },
+      "copilot-bridge-p62": {
+        "description": "Quota remaining: 62%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:62}"
+        }
+      },
+      "copilot-bridge-p63": {
+        "description": "Quota remaining: 63%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:63}"
+        }
+      },
+      "copilot-bridge-p64": {
+        "description": "Quota remaining: 64%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:64}"
+        }
+      },
+      "copilot-bridge-p65": {
+        "description": "Quota remaining: 65%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:65}"
+        }
+      },
+      "copilot-bridge-p66": {
+        "description": "Quota remaining: 66%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:66}"
+        }
+      },
+      "copilot-bridge-p67": {
+        "description": "Quota remaining: 67%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:67}"
+        }
+      },
+      "copilot-bridge-p68": {
+        "description": "Quota remaining: 68%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:68}"
+        }
+      },
+      "copilot-bridge-p69": {
+        "description": "Quota remaining: 69%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:69}"
+        }
+      },
+      "copilot-bridge-p70": {
+        "description": "Quota remaining: 70%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:70}"
+        }
+      },
+      "copilot-bridge-p71": {
+        "description": "Quota remaining: 71%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:71}"
+        }
+      },
+      "copilot-bridge-p72": {
+        "description": "Quota remaining: 72%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:72}"
+        }
+      },
+      "copilot-bridge-p73": {
+        "description": "Quota remaining: 73%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:73}"
+        }
+      },
+      "copilot-bridge-p74": {
+        "description": "Quota remaining: 74%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:74}"
+        }
+      },
+      "copilot-bridge-p75": {
+        "description": "Quota remaining: 75%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:75}"
+        }
+      },
+      "copilot-bridge-p76": {
+        "description": "Quota remaining: 76%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:76}"
+        }
+      },
+      "copilot-bridge-p77": {
+        "description": "Quota remaining: 77%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:77}"
+        }
+      },
+      "copilot-bridge-p78": {
+        "description": "Quota remaining: 78%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:78}"
+        }
+      },
+      "copilot-bridge-p79": {
+        "description": "Quota remaining: 79%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:79}"
+        }
+      },
+      "copilot-bridge-p80": {
+        "description": "Quota remaining: 80%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:80}"
+        }
+      },
+      "copilot-bridge-p81": {
+        "description": "Quota remaining: 81%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:81}"
+        }
+      },
+      "copilot-bridge-p82": {
+        "description": "Quota remaining: 82%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:82}"
+        }
+      },
+      "copilot-bridge-p83": {
+        "description": "Quota remaining: 83%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:83}"
+        }
+      },
+      "copilot-bridge-p84": {
+        "description": "Quota remaining: 84%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:84}"
+        }
+      },
+      "copilot-bridge-p85": {
+        "description": "Quota remaining: 85%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:85}"
+        }
+      },
+      "copilot-bridge-p86": {
+        "description": "Quota remaining: 86%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:86}"
+        }
+      },
+      "copilot-bridge-p87": {
+        "description": "Quota remaining: 87%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:87}"
+        }
+      },
+      "copilot-bridge-p88": {
+        "description": "Quota remaining: 88%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:88}"
+        }
+      },
+      "copilot-bridge-p89": {
+        "description": "Quota remaining: 89%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:89}"
+        }
+      },
+      "copilot-bridge-p90": {
+        "description": "Quota remaining: 90%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:90}"
+        }
+      },
+      "copilot-bridge-p91": {
+        "description": "Quota remaining: 91%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:91}"
+        }
+      },
+      "copilot-bridge-p92": {
+        "description": "Quota remaining: 92%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:92}"
+        }
+      },
+      "copilot-bridge-p93": {
+        "description": "Quota remaining: 93%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:93}"
+        }
+      },
+      "copilot-bridge-p94": {
+        "description": "Quota remaining: 94%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:94}"
+        }
+      },
+      "copilot-bridge-p95": {
+        "description": "Quota remaining: 95%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:95}"
+        }
+      },
+      "copilot-bridge-p96": {
+        "description": "Quota remaining: 96%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:96}"
+        }
+      },
+      "copilot-bridge-p97": {
+        "description": "Quota remaining: 97%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:97}"
+        }
+      },
+      "copilot-bridge-p98": {
+        "description": "Quota remaining: 98%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:98}"
+        }
+      },
+      "copilot-bridge-p99": {
+        "description": "Quota remaining: 99%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:99}"
+        }
+      },
+      "copilot-bridge-p100": {
+        "description": "Quota remaining: 100%",
+        "default": {
+          "fontPath": "./media/fonts/Datatype.woff2",
+          "fontCharacter": "{p:100}"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run build",
+    "test": "node scripts/smoke-test.mjs",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/vscode": "~1.120.0",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}

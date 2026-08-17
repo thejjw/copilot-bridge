@@ -1,0 +1,12 @@
+node_modules/**
+src/**
+scripts/**
+.eslintrc*
+.prettierrc*
+.gitignore
+tsconfig.json
+esbuild.config.mjs
+RESEARCH.md
+**/*.map
+**/*.ts
+*.log
