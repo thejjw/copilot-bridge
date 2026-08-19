@@ -131,7 +131,7 @@
       },
       {
         "command": "copilot-provider-bridge.selectStatusBarProvider",
-        "title": "Select Pinned Status Bar Provider",
+        "title": "Select Status Bar Provider",
         "category": "Copilot Provider Bridge"
       },
       {

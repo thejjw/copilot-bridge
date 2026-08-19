@@ -1,6 +1,8 @@
 // Status bar manager for Copilot Provider Bridge.
 // Displays a minimal single-provider badge (dynamic pie glyph + percent, or balance number)
-// for the user's explicitly pinned provider, or automatically selects the most relevant active provider.
+// for the user's explicitly selected provider. There is intentionally no "auto-select":
+// VS Code exposes no API to observe which chat model is active, so any automatic choice
+// would be a misleading guess. Unpinned state renders a neutral placeholder.
 
 import * as vscode from 'vscode';
 import type { ProviderId } from '../providers';
@@ -82,26 +84,25 @@ export class UsageStatusBarManager {
     });
   }
 
-  /** Explicitly pin which provider badge appears on the status bar (pass undefined to unpin and restore auto-select). */
+  /** Explicitly select which provider badge appears on the status bar (pass undefined to clear and show the neutral placeholder). */
   async setPinnedProvider(providerId?: ProviderId): Promise<void> {
     this._pinnedProviderId = providerId;
     await this.context.globalState.update('copilotProviderBridge.pinnedProvider', providerId);
     this.render();
   }
 
-  /** Interactive QuickPick to let user switch the pinned provider, unpin to restore auto-select, or manage keys. */
+  /** Interactive QuickPick to let the user choose which provider's badge appears, clear the selection, or manage keys. */
   async selectProviderInteractive(): Promise<void> {
     const items: Array<vscode.QuickPickItem & { providerId?: ProviderId; action?: string }> = [];
 
-    const activeId = this.getActiveProviderId();
-    const isAutoMode = this._pinnedProviderId === undefined;
+    const selectedId = this.getSelectedProviderId();
 
-    // Option 1: Auto-select / Unpin option
+    // Option 1: Clear selection -> neutral placeholder badge
     items.push({
-      label: '$(sparkle) Auto-Select Provider (Default)',
-      description: isAutoMode ? '(Currently Active)' : 'Unpin specific provider and automatically track active quota',
-      detail: 'Automatically selects the primary configured provider with active usage quota.',
-      action: 'unpin',
+      label: '$(circle-slash) No Provider Selected (Neutral Badge)',
+      description: selectedId === undefined ? '(Currently Active)' : 'Clear selection',
+      detail: 'Show a neutral badge. Pick a provider below to display its quota in the status bar.',
+      action: 'clear',
     });
 
     if (this._reports.size > 0) {
@@ -109,8 +110,7 @@ export class UsageStatusBarManager {
     }
 
     for (const report of this._reports.values()) {
-      const isPinned = this._pinnedProviderId === report.providerId;
-      const isCurrentlyShown = report.providerId === activeId;
+      const isSelected = report.providerId === selectedId;
       const metric =
         report.percentageRemaining !== undefined
           ? `${getPieGlyph(report.percentageRemaining)} ${report.percentageRemaining}% remaining`
@@ -122,15 +122,9 @@ export class UsageStatusBarManager {
       const statusIcon =
         report.status === 'ok' ? '🟢' : report.status === 'low' ? '🟡' : report.status === 'critical' ? '🔴' : '⚠️';
 
-      const tag = isPinned
-        ? '📌 (Pinned in Status Bar)'
-        : isCurrentlyShown && isAutoMode
-        ? '✨ (Showing via Auto-Select)'
-        : undefined;
-
       items.push({
         label: `${statusIcon} ${report.providerName}`,
-        description: tag,
+        description: isSelected ? '📌 (Shown in Status Bar)' : undefined,
         detail: `${metric}${reset}`,
         providerId: report.providerId,
       });
@@ -158,14 +152,14 @@ export class UsageStatusBarManager {
 
     const choice = await vscode.window.showQuickPick(items, {
       title: 'Copilot Provider Bridge: Status Bar Badge Provider',
-      placeHolder: 'Select a provider to pin, choose Auto-Select to unpin, or manage keys',
+      placeHolder: 'Select which provider quota to show in the status bar',
     });
 
     if (!choice) return;
 
-    if (choice.action === 'unpin') {
+    if (choice.action === 'clear') {
       await this.setPinnedProvider(undefined);
-      void vscode.window.showInformationMessage('Restored status bar to Auto-Select provider mode.');
+      void vscode.window.showInformationMessage('Status bar badge cleared. Select a provider anytime to pin its quota.');
       return;
     }
 
@@ -198,24 +192,9 @@ export class UsageStatusBarManager {
     }
   }
 
-  /** Get active provider ID (explicitly pinned, or auto-selected from available reports). */
-  getActiveProviderId(): ProviderId {
-    if (this._pinnedProviderId) {
-      return this._pinnedProviderId;
-    }
-    // Auto-select: prioritize providers with percentage quotas (e.g. zai, kimi), then balances, or first available
-    for (const [id, r] of this._reports) {
-      if (r.percentageRemaining !== undefined && r.status !== 'error') {
-        return id;
-      }
-    }
-    for (const [id, r] of this._reports) {
-      if (r.balanceDisplay && r.status !== 'error') {
-        return id;
-      }
-    }
-    const firstReport = this._reports.keys().next().value;
-    return firstReport ?? 'zai';
+  /** Get the explicitly selected provider ID, or undefined when no provider is selected (neutral badge). */
+  getSelectedProviderId(): ProviderId | undefined {
+    return this._pinnedProviderId;
   }
 
   /** Query all configured provider usage endpoints in parallel. */
@@ -223,11 +202,21 @@ export class UsageStatusBarManager {
     try {
       const config = await readConfig();
 
-      const zaiGroup = config.find((g) => g.apiKey.includes('zai.apiKey') || g.name.includes('Z.ai'));
-      const dsGroup = config.find((g) => g.apiKey.includes('deepseek.apiKey') || g.name.includes('DeepSeek'));
-      const mmGroup = config.find((g) => g.apiKey.includes('minimax.apiKey') || g.name.includes('MiniMax'));
-      const kimiGroup = config.find((g) => g.apiKey.includes('kimi.apiKey') || g.name.includes('Kimi'));
-      const orGroup = config.find((g) => g.apiKey.includes('openrouter.apiKey') || g.name.includes('OpenRouter'));
+      // Match config groups to providers by the bridge marker embedded in the apiKey
+      // (e.g. "${input:copilot-provider-bridge.kimi.apiKey}"), falling back to the exact
+      // catalog display name. Substring name matching was dropped: it false-positives on
+      // user-created groups that merely mention a provider name.
+      const findGroup = (providerId: string, displayName: string) =>
+        config.find(
+          (g) => g.apiKey.includes(`copilot-provider-bridge.${providerId}.`) || g.name === displayName
+        );
+
+      const zaiGroup = findGroup('zai', 'Z.ai GLM Coding Plan');
+      const dsGroup = findGroup('deepseek', 'DeepSeek');
+      const mmGroup = findGroup('minimax', 'MiniMax');
+      const kimiGroup = findGroup('kimi', 'Kimi Code Plan');
+      const orGroup = findGroup('openrouter', 'OpenRouter');
+      const nvidiaGroup = findGroup('nvidia', 'NVIDIA NIM');
 
       const zaiKey =
         (await this.context.secrets.get('copilot-provider-bridge.zai.apiKey')) ??
@@ -326,6 +315,20 @@ export class UsageStatusBarManager {
         );
       }
 
+      // NVIDIA NIM has no public quota endpoint; surface a configured stub so the
+      // provider still appears in the dashboard and can be pinned to the status bar.
+      if (nvidiaGroup) {
+        fetchers.push(
+          Promise.resolve({
+            providerId: 'nvidia',
+            providerName: 'NVIDIA NIM',
+            details: ['Usage quota API not available for NVIDIA NIM.'],
+            status: 'ok',
+            lastUpdated: new Date(),
+          })
+        );
+      }
+
       const results = await Promise.allSettled(fetchers);
 
       for (const res of results) {
@@ -342,45 +345,29 @@ export class UsageStatusBarManager {
 
   /** Render the minimal status bar text and rich Markdown tooltip. */
   render(): void {
-    if (this._reports.size === 0) {
+    const selectedId = this.getSelectedProviderId();
+    const active = selectedId !== undefined ? this._reports.get(selectedId) : undefined;
+
+    // Neutral placeholder when nothing is selected, or the selected provider has no
+    // usable metric. Never substitutes another provider: the badge only ever shows
+    // what the user explicitly chose.
+    const metricText =
+      active?.percentageRemaining !== undefined
+        ? `${getDatatypeIcon(active.percentageRemaining)} ${active.percentageRemaining}%`
+        : active?.balanceDisplay ?? undefined;
+
+    if (!metricText) {
       this._statusBarItem.text = 'Copilot-Provider-Bridge';
-      const md = new vscode.MarkdownString();
-      md.isTrusted = true;
-      md.supportHtml = true;
-      md.appendMarkdown(`### ⚡ Copilot Provider Bridge — Plan Quotas & Balances\n\n`);
-      md.appendMarkdown(`*No usage API keys configured yet.*\n\n`);
-      md.appendMarkdown(
-        `[🔑 Configure Usage Keys](command:copilot-provider-bridge.configureUsageKey) · [🚀 Quick Setup](command:copilot-provider-bridge.quickSetup)`
-      );
-      this._statusBarItem.tooltip = md;
       this._statusBarItem.color = undefined;
-      return;
-    }
-
-    const activeId = this.getActiveProviderId();
-    const active = this._reports.get(activeId) ?? this._reports.values().next().value;
-    if (!active) {
-      this._statusBarItem.text = 'Copilot-Provider-Bridge';
-      return;
-    }
-
-    // Status bar badge: bundled Datatype icon + percent (e.g. "$(copilot-provider-bridge-p99) 99%") or balance string (e.g. "¥299.79")
-    if (active.percentageRemaining !== undefined) {
-      const icon = getDatatypeIcon(active.percentageRemaining);
-      this._statusBarItem.text = `${icon} ${active.percentageRemaining}%`;
-    } else if (active.balanceDisplay) {
-      this._statusBarItem.text = active.balanceDisplay;
     } else {
-      this._statusBarItem.text = 'Copilot-Provider-Bridge';
-    }
-
-    // Set warning/error colors for critical states
-    if (active.status === 'critical') {
-      this._statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
-    } else if (active.status === 'low') {
-      this._statusBarItem.color = new vscode.ThemeColor('statusBarItem.warningForeground');
-    } else {
-      this._statusBarItem.color = undefined;
+      this._statusBarItem.text = metricText;
+      if (active!.status === 'critical') {
+        this._statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
+      } else if (active!.status === 'low') {
+        this._statusBarItem.color = new vscode.ThemeColor('statusBarItem.warningForeground');
+      } else {
+        this._statusBarItem.color = undefined;
+      }
     }
 
     // Build Polished Markdown Tooltip covering ALL active providers
@@ -388,25 +375,36 @@ export class UsageStatusBarManager {
     md.isTrusted = true;
     md.supportHtml = true;
 
-    const isPinned = this._pinnedProviderId !== undefined;
-    const modeLabel = isPinned ? 'Pinned Mode' : 'Auto-Select Mode';
+    if (this._reports.size === 0) {
+      md.appendMarkdown(`### ⚡ Copilot Provider Bridge — Plan Quotas & Balances\n\n`);
+      md.appendMarkdown(`*No usage API keys configured yet.*\n\n`);
+      md.appendMarkdown(
+        `[🔑 Configure Usage Keys](command:copilot-provider-bridge.configureUsageKey) | [🚀 Quick Setup](command:copilot-provider-bridge.quickSetup)`
+      );
+      this._statusBarItem.tooltip = md;
+      return;
+    }
+
+    const hasSelection = selectedId !== undefined;
+    const modeLabel = hasSelection ? `Selected: ${active?.providerName ?? selectedId}` : 'No Provider Selected';
 
     md.appendMarkdown(`### ⚡ Copilot Provider Bridge — Quotas & Balances *(${modeLabel})*\n\n`);
     md.appendMarkdown(
-      `[🔄 Refresh](command:copilot-provider-bridge.refreshUsage) | [📌 ${isPinned ? 'Change / Unpin' : 'Pin Provider'}](command:copilot-provider-bridge.selectStatusBarProvider) | [🔑 Keys](command:copilot-provider-bridge.configureUsageKey) | [🩺 Diagnostics](command:copilot-provider-bridge.runDiagnostics)\n\n`
+      `[🔄 Refresh](command:copilot-provider-bridge.refreshUsage) | [📌 ${hasSelection ? 'Change / Clear Selection' : 'Select Provider'}](command:copilot-provider-bridge.selectStatusBarProvider) | [🔑 Keys](command:copilot-provider-bridge.configureUsageKey) | [🩺 Diagnostics](command:copilot-provider-bridge.runDiagnostics)\n\n`
     );
+
+    if (!hasSelection) {
+      md.appendMarkdown(
+        `*The status bar badge only shows a provider you explicitly select. Click the badge to choose one.*\n\n`
+      );
+    }
 
     md.appendMarkdown(`| Provider | Remaining / Balance | Meter | Reset | Status |\n`);
     md.appendMarkdown(`| :--- | :--- | :---: | :--- | :---: |\n`);
 
     for (const report of this._reports.values()) {
-      const isReportPinned = this._pinnedProviderId === report.providerId;
-      const isReportActive = report.providerId === activeId;
-      const name = isReportPinned
-        ? `**📌 ${report.providerName}**`
-        : isReportActive && !isPinned
-        ? `**✨ ${report.providerName}**`
-        : `**${report.providerName}**`;
+      const isReportSelected = report.providerId === selectedId;
+      const name = isReportSelected ? `**📌 ${report.providerName}**` : `**${report.providerName}**`;
 
       const value =
         report.percentageRemaining !== undefined
@@ -442,12 +440,9 @@ export class UsageStatusBarManager {
     // Detailed per-provider breakdowns
     md.appendMarkdown(`\n---\n`);
     for (const report of this._reports.values()) {
-      const isReportPinned = this._pinnedProviderId === report.providerId;
-      const isReportActive = report.providerId === activeId;
-      const header = isReportPinned
-        ? `#### 📌 ${report.providerName} *(Pinned in Status Bar)*\n`
-        : isReportActive && !isPinned
-        ? `#### ✨ ${report.providerName} *(Active in Status Bar via Auto-Select)*\n`
+      const isReportSelected = report.providerId === selectedId;
+      const header = isReportSelected
+        ? `#### 📌 ${report.providerName} *(Shown in Status Bar)*\n`
         : `#### ${report.providerName}\n`;
       md.appendMarkdown(header);
 
@@ -469,8 +464,10 @@ export class UsageStatusBarManager {
       md.appendMarkdown(`\n`);
     }
 
-    const lastTime = active.lastUpdated.toLocaleTimeString();
-    md.appendMarkdown(`---\n*Auto-refreshes every 5m · Click status bar to switch or unpin badge · Updated ${lastTime}*`);
+    const lastTime = (active ?? this._reports.values().next().value)?.lastUpdated.toLocaleTimeString();
+    md.appendMarkdown(
+      `---\n*Auto-refreshes every 5m · Click status bar to select a provider badge${lastTime ? ` · Updated ${lastTime}` : ''}*`
+    );
 
     this._statusBarItem.tooltip = md;
   }
