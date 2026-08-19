@@ -13,6 +13,10 @@
     "url": "https://github.com/thejjw/copilot-provider-bridge/issues"
   },
   "homepage": "https://github.com/thejjw/copilot-provider-bridge#readme",
+  "funding": {
+    "type": "buy-me-a-coffee",
+    "url": "https://buymeacoffee.com/thejjw"
+  },
   "engines": {
     "vscode": "^1.122.0"
   },

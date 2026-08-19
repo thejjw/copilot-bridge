@@ -168,6 +168,13 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
 
 - Status bar visual quota indicators bundle [Datatype](https://franktisellano.github.io/datatype/) by [Frank Tisellano](https://github.com/franktisellano/datatype), licensed under the [SIL Open Font License 1.1](./media/fonts/OFL.txt).
 
+## Support & Maintenance
+
+This extension is developed and published primarily for personal use. The GitHub repository linked as the "support site" is provided as a public resource for transparency and reference only. While feedback, suggestions, and issue reports are welcome and appreciated, responses, active support, or ongoing maintenance are not guaranteed.
+
+If you find this project helpful, feel free to support development:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/thejjw)
 ## License
 
 See `LICENSE`.
