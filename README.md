@@ -116,7 +116,7 @@ git clone https://github.com/thejjw/copilot-provider-bridge
 cd copilot-provider-bridge
 npm install
 npm run package
-code --install-extension copilot-provider-bridge-0.1.5.vsix
+code --install-extension copilot-provider-bridge-0.1.6.vsix
 ```
 
 ### Upgrading from v0.1.0
