@@ -109,19 +109,19 @@ export interface VisionToolInput {
   prompt?: string;
 }
 
-export class CopilotBridgeVisionTool implements vscode.LanguageModelTool<VisionToolInput> {
-  static readonly toolId = 'copilot_bridge_analyze_visual';
+export class CopilotProviderBridgeVisionTool implements vscode.LanguageModelTool<VisionToolInput> {
+  static readonly toolId = 'copilot_provider_bridge_analyze_visual';
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
   /** Resolve user's preferred vision backend or pick the first one with an active key. */
   async resolveBackend(): Promise<{ backend: VisionBackendOption; apiKey: string } | undefined> {
-    const preferredId = this.context.globalState.get<string>('copilotBridge.preferredVisionModel');
+    const preferredId = this.context.globalState.get<string>('copilotProviderBridge.preferredVisionModel');
 
     // Helper to retrieve API key for a provider
     const getKey = async (provId: ProviderId): Promise<string | undefined> => {
       return (
-        (await this.context.secrets.get(`copilot-bridge.${provId}.apiKey`)) ??
+        (await this.context.secrets.get(`copilot-provider-bridge.${provId}.apiKey`)) ??
         process.env[`${provId.toUpperCase()}_API_KEY`]
       );
     };
@@ -156,7 +156,7 @@ export class CopilotBridgeVisionTool implements vscode.LanguageModelTool<VisionT
       return new vscode.LanguageModelToolResult([
         new vscode.LanguageModelTextPart(
           'Error: No API key found for any vision backend (Z.ai, Gemini, MiniMax, Kimi, Qwen, or NVIDIA). ' +
-            'Please run command "Copilot Bridge: Configure Usage API Key" or "Copilot Bridge: Select Vision Agent Model" to set an API key.'
+            'Please run command "Copilot Provider Bridge: Configure Usage API Key" or "Copilot Provider Bridge: Select Vision Agent Model" to set an API key.'
         ),
       ]);
     }

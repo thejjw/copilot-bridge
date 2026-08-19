@@ -4,13 +4,13 @@ import * as vscode from 'vscode';
 import { VISION_BACKENDS, type VisionBackendOption } from '../tools/visionTool';
 
 export async function selectVisionModelCommand(context: vscode.ExtensionContext): Promise<void> {
-  const currentId = context.globalState.get<string>('copilotBridge.preferredVisionModel');
+  const currentId = context.globalState.get<string>('copilotProviderBridge.preferredVisionModel');
 
   const items = await Promise.all(
     VISION_BACKENDS.map(async (b) => {
       const isPinned = b.id === currentId;
       const key =
-        (await context.secrets.get(`copilot-bridge.${b.providerId}.apiKey`)) ??
+        (await context.secrets.get(`copilot-provider-bridge.${b.providerId}.apiKey`)) ??
         process.env[`${b.providerId.toUpperCase()}_API_KEY`];
       const status = key ? '$(check) Key configured' : '$(warning) No key found';
 
@@ -24,14 +24,14 @@ export async function selectVisionModelCommand(context: vscode.ExtensionContext)
   );
 
   const pick = await vscode.window.showQuickPick(items, {
-    title: 'Copilot Bridge: Select Vision Agent Model',
+    title: 'Copilot Provider Bridge: Select Vision Agent Model',
     placeHolder: 'Choose which multimodal model powers automatic visual analysis for text-only coding models',
     ignoreFocusOut: true,
   });
 
   if (!pick) return;
 
-  await context.globalState.update('copilotBridge.preferredVisionModel', pick.backend.id);
+  await context.globalState.update('copilotProviderBridge.preferredVisionModel', pick.backend.id);
   void vscode.window.showInformationMessage(
     `Pinned "${pick.backend.name}" as the Vision Agent backend. When text-only models (like GLM-5.3 or DeepSeek V4) need visual analysis, this model will be invoked.`
   );

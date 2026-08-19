@@ -7,13 +7,13 @@ export async function listModelsCommand(): Promise<void> {
 
   if (!hasAnyBridgeGroup(cfg)) {
     void vscode.window.showInformationMessage(
-      'Copilot Bridge: no managed provider groups installed. Run "Add Model" to get started.',
+      'Copilot Provider Bridge: no managed provider groups installed. Run "Add Model" to get started.',
     );
     return;
   }
 
   const items = cfg
-    .filter((g) => g.apiKey.includes('copilot-bridge.'))
+    .filter((g) => g.apiKey.includes('copilot-provider-bridge.'))
     .flatMap((g) =>
       g.models.map((m) => ({
         label: m.name,
@@ -23,7 +23,7 @@ export async function listModelsCommand(): Promise<void> {
     );
 
   void vscode.window.showQuickPick(items, {
-    title: 'Copilot Bridge - Installed Models',
+    title: 'Copilot Provider Bridge - Installed Models',
     placeHolder: `${items.length} model${items.length === 1 ? '' : 's'} across managed providers`,
     ignoreFocusOut: true,
   });

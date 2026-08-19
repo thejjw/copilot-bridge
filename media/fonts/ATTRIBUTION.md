@@ -1,6 +1,6 @@
 # Font Attribution: Datatype
 
-The status bar percentage visual icons in Copilot Bridge bundle **Datatype**, an open-source variable font designed by Frank Tisellano.
+The status bar percentage visual icons in Copilot Provider Bridge bundle **Datatype**, an open-source variable font designed by Frank Tisellano.
 
 - **Project**: [Datatype](https://franktisellano.github.io/datatype/)
 - **Author**: Frank Tisellano ([@franktisellano](https://github.com/franktisellano))

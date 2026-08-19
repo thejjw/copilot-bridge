@@ -6,7 +6,7 @@ import {
   writeMcpFile,
 } from './addMcp';
 
-/** Command: Copilot Bridge: Remove MCP Server */
+/** Command: Copilot Provider Bridge: Remove MCP Server */
 export async function removeMcpCommand(): Promise<void> {
   const wsPath = workspaceMcpConfigPath();
   const targetOptions = [
@@ -26,7 +26,7 @@ export async function removeMcpCommand(): Promise<void> {
   }
 
   const targetPick = await vscode.window.showQuickPick(targetOptions, {
-    title: 'Copilot Bridge - Remove MCP Server: Select Target',
+    title: 'Copilot Provider Bridge - Remove MCP Server: Select Target',
     placeHolder: 'Select the mcp.json file to manage',
     ignoreFocusOut: true,
   });
@@ -49,7 +49,7 @@ export async function removeMcpCommand(): Promise<void> {
       };
     }),
     {
-      title: 'Copilot Bridge - Choose MCP Server to Remove',
+      title: 'Copilot Provider Bridge - Choose MCP Server to Remove',
       placeHolder: 'Select the server to remove from configuration',
       ignoreFocusOut: true,
     }

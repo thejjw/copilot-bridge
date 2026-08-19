@@ -86,7 +86,7 @@ export async function validateProviderKey(
  *   6. Safely merge and write both configuration files.
  */
 export async function quickSetupCommand(context?: vscode.ExtensionContext): Promise<void> {
-  Logger.info('Running Copilot Bridge Quick Setup Wizard...');
+  Logger.info('Running Copilot Provider Bridge Quick Setup Wizard...');
 
   // Step 1: Select Providers
   const providerPicks = await vscode.window.showQuickPick(
@@ -98,7 +98,7 @@ export async function quickSetupCommand(context?: vscode.ExtensionContext): Prom
       provider: p,
     })),
     {
-      title: 'Copilot Bridge: Quick Setup (1/3) - Select Providers',
+      title: 'Copilot Provider Bridge: Quick Setup (1/3) - Select Providers',
       placeHolder: 'Choose which providers you have subscriptions/keys for (Enter to confirm)',
       ignoreFocusOut: true,
       canPickMany: true,
@@ -117,13 +117,13 @@ export async function quickSetupCommand(context?: vscode.ExtensionContext): Prom
     let keyValidated = false;
 
     while (!keyValidated) {
-      const secretKey = `copilot-bridge.${p.id}.apiKey`;
+      const secretKey = `copilot-provider-bridge.${p.id}.apiKey`;
       const existingSecret = context ? await context.secrets.get(secretKey) : undefined;
       const existingEnv = process.env[`${p.id.toUpperCase()}_API_KEY`];
       const existingKey = existingSecret ?? existingEnv;
 
       const inputKey = await vscode.window.showInputBox({
-        title: `Copilot Bridge Setup: API Key for ${p.name} (${i + 1}/${selectedProviders.length})`,
+        title: `Copilot Provider Bridge Setup: API Key for ${p.name} (${i + 1}/${selectedProviders.length})`,
         prompt: existingKey
           ? `Detected existing key (${Logger.maskSecret(existingKey)}). Press Enter to test & keep, or enter new key:`
           : `Enter your API key for ${p.name} (Leave empty to skip & disable this provider):`,
@@ -245,7 +245,7 @@ export async function quickSetupCommand(context?: vscode.ExtensionContext): Prom
         };
       }),
       {
-        title: 'Copilot Bridge: Quick Setup (2/3) - Select Companion MCP Tools',
+        title: 'Copilot Provider Bridge: Quick Setup (2/3) - Select Companion MCP Tools',
         placeHolder: 'Choose companion MCP tools to install (or deselect all to skip)',
         ignoreFocusOut: true,
         canPickMany: true,
@@ -275,7 +275,7 @@ export async function quickSetupCommand(context?: vscode.ExtensionContext): Prom
       }
 
       const targetPick = await vscode.window.showQuickPick(targetOptions, {
-        title: 'Copilot Bridge: Quick Setup (3/3) - Choose MCP Target File',
+        title: 'Copilot Provider Bridge: Quick Setup (3/3) - Choose MCP Target File',
         placeHolder: 'Where should the mcp.json configuration be saved?',
         ignoreFocusOut: true,
       });
@@ -291,9 +291,9 @@ export async function quickSetupCommand(context?: vscode.ExtensionContext): Prom
   }
 
   if (context) {
-    await context.globalState.update('copilotBridge.hasRunSetup', true);
-    await context.globalState.update('copilotBridge.hasPromptedSetup', true);
-    void vscode.commands.executeCommand('copilot-bridge.refreshUsage');
+    await context.globalState.update('copilotProviderBridge.hasRunSetup', true);
+    await context.globalState.update('copilotProviderBridge.hasPromptedSetup', true);
+    void vscode.commands.executeCommand('copilot-provider-bridge.refreshUsage');
   }
 
   const msg =

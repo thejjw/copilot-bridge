@@ -1,4 +1,4 @@
-// Status bar manager for Copilot Bridge.
+// Status bar manager for Copilot Provider Bridge.
 // Displays a minimal single-provider badge (dynamic pie glyph + percent, or balance number)
 // for the user's explicitly pinned provider, or automatically selects the most relevant active provider.
 
@@ -47,15 +47,15 @@ export class UsageStatusBarManager {
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this._statusBarItem = vscode.window.createStatusBarItem(
-      'copilot-bridge.usage',
+      'copilot-provider-bridge.usage',
       vscode.StatusBarAlignment.Right,
       99
     );
-    this._statusBarItem.name = 'Copilot Bridge: Plan Usage';
-    this._statusBarItem.command = 'copilot-bridge.selectStatusBarProvider';
+    this._statusBarItem.name = 'Copilot Provider Bridge: Plan Usage';
+    this._statusBarItem.command = 'copilot-provider-bridge.selectStatusBarProvider';
 
     // Restore previously pinned provider from globalState, if any
-    const savedPin = this.context.globalState.get<ProviderId>('copilotBridge.pinnedProvider');
+    const savedPin = this.context.globalState.get<ProviderId>('copilotProviderBridge.pinnedProvider');
     if (savedPin) {
       this._pinnedProviderId = savedPin;
     }
@@ -85,7 +85,7 @@ export class UsageStatusBarManager {
   /** Explicitly pin which provider badge appears on the status bar (pass undefined to unpin and restore auto-select). */
   async setPinnedProvider(providerId?: ProviderId): Promise<void> {
     this._pinnedProviderId = providerId;
-    await this.context.globalState.update('copilotBridge.pinnedProvider', providerId);
+    await this.context.globalState.update('copilotProviderBridge.pinnedProvider', providerId);
     this.render();
   }
 
@@ -157,7 +157,7 @@ export class UsageStatusBarManager {
     });
 
     const choice = await vscode.window.showQuickPick(items, {
-      title: 'Copilot Bridge: Status Bar Badge Provider',
+      title: 'Copilot Provider Bridge: Status Bar Badge Provider',
       placeHolder: 'Select a provider to pin, choose Auto-Select to unpin, or manage keys',
     });
 
@@ -173,22 +173,22 @@ export class UsageStatusBarManager {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Refreshing Copilot Bridge plan quotas & balances...',
+          title: 'Refreshing Copilot Provider Bridge plan quotas & balances...',
           cancellable: false,
         },
         () => this.refresh()
       );
-      void vscode.window.showInformationMessage('Copilot Bridge: Plan quotas refreshed.');
+      void vscode.window.showInformationMessage('Copilot Provider Bridge: Plan quotas refreshed.');
       return;
     }
 
     if (choice.action === 'configureKeys') {
-      await vscode.commands.executeCommand('copilot-bridge.configureUsageKey');
+      await vscode.commands.executeCommand('copilot-provider-bridge.configureUsageKey');
       return;
     }
 
     if (choice.action === 'diagnostics') {
-      await vscode.commands.executeCommand('copilot-bridge.runDiagnostics');
+      await vscode.commands.executeCommand('copilot-provider-bridge.runDiagnostics');
       return;
     }
 
@@ -230,27 +230,27 @@ export class UsageStatusBarManager {
       const orGroup = config.find((g) => g.apiKey.includes('openrouter.apiKey') || g.name.includes('OpenRouter'));
 
       const zaiKey =
-        (await this.context.secrets.get('copilot-bridge.zai.apiKey')) ??
+        (await this.context.secrets.get('copilot-provider-bridge.zai.apiKey')) ??
         process.env.ZAI_API_KEY ??
         (zaiGroup && !zaiGroup.apiKey.startsWith('${input:') ? zaiGroup.apiKey : undefined);
 
       const dsKey =
-        (await this.context.secrets.get('copilot-bridge.deepseek.apiKey')) ??
+        (await this.context.secrets.get('copilot-provider-bridge.deepseek.apiKey')) ??
         process.env.DEEPSEEK_API_KEY ??
         (dsGroup && !dsGroup.apiKey.startsWith('${input:') ? dsGroup.apiKey : undefined);
 
       const mmKey =
-        (await this.context.secrets.get('copilot-bridge.minimax.apiKey')) ??
+        (await this.context.secrets.get('copilot-provider-bridge.minimax.apiKey')) ??
         process.env.MINIMAX_API_KEY ??
         (mmGroup && !mmGroup.apiKey.startsWith('${input:') ? mmGroup.apiKey : undefined);
 
       const kimiKey =
-        (await this.context.secrets.get('copilot-bridge.kimi.apiKey')) ??
+        (await this.context.secrets.get('copilot-provider-bridge.kimi.apiKey')) ??
         process.env.KIMI_API_KEY ??
         (kimiGroup && !kimiGroup.apiKey.startsWith('${input:') ? kimiGroup.apiKey : undefined);
 
       const orKey =
-        (await this.context.secrets.get('copilot-bridge.openrouter.apiKey')) ??
+        (await this.context.secrets.get('copilot-provider-bridge.openrouter.apiKey')) ??
         process.env.OPENROUTER_API_KEY ??
         (orGroup && !orGroup.apiKey.startsWith('${input:') ? orGroup.apiKey : undefined);
 
@@ -343,14 +343,14 @@ export class UsageStatusBarManager {
   /** Render the minimal status bar text and rich Markdown tooltip. */
   render(): void {
     if (this._reports.size === 0) {
-      this._statusBarItem.text = 'Copilot-Bridge';
+      this._statusBarItem.text = 'Copilot-Provider-Bridge';
       const md = new vscode.MarkdownString();
       md.isTrusted = true;
       md.supportHtml = true;
-      md.appendMarkdown(`### ⚡ Copilot Bridge — Plan Quotas & Balances\n\n`);
+      md.appendMarkdown(`### ⚡ Copilot Provider Bridge — Plan Quotas & Balances\n\n`);
       md.appendMarkdown(`*No usage API keys configured yet.*\n\n`);
       md.appendMarkdown(
-        `[🔑 Configure Usage Keys](command:copilot-bridge.configureUsageKey) · [🚀 Quick Setup](command:copilot-bridge.quickSetup)`
+        `[🔑 Configure Usage Keys](command:copilot-provider-bridge.configureUsageKey) · [🚀 Quick Setup](command:copilot-provider-bridge.quickSetup)`
       );
       this._statusBarItem.tooltip = md;
       this._statusBarItem.color = undefined;
@@ -360,18 +360,18 @@ export class UsageStatusBarManager {
     const activeId = this.getActiveProviderId();
     const active = this._reports.get(activeId) ?? this._reports.values().next().value;
     if (!active) {
-      this._statusBarItem.text = 'Copilot-Bridge';
+      this._statusBarItem.text = 'Copilot-Provider-Bridge';
       return;
     }
 
-    // Status bar badge: bundled Datatype icon + percent (e.g. "$(copilot-bridge-p99) 99%") or balance string (e.g. "¥299.79")
+    // Status bar badge: bundled Datatype icon + percent (e.g. "$(copilot-provider-bridge-p99) 99%") or balance string (e.g. "¥299.79")
     if (active.percentageRemaining !== undefined) {
       const icon = getDatatypeIcon(active.percentageRemaining);
       this._statusBarItem.text = `${icon} ${active.percentageRemaining}%`;
     } else if (active.balanceDisplay) {
       this._statusBarItem.text = active.balanceDisplay;
     } else {
-      this._statusBarItem.text = 'Copilot-Bridge';
+      this._statusBarItem.text = 'Copilot-Provider-Bridge';
     }
 
     // Set warning/error colors for critical states
@@ -391,9 +391,9 @@ export class UsageStatusBarManager {
     const isPinned = this._pinnedProviderId !== undefined;
     const modeLabel = isPinned ? 'Pinned Mode' : 'Auto-Select Mode';
 
-    md.appendMarkdown(`### ⚡ Copilot Bridge — Quotas & Balances *(${modeLabel})*\n\n`);
+    md.appendMarkdown(`### ⚡ Copilot Provider Bridge — Quotas & Balances *(${modeLabel})*\n\n`);
     md.appendMarkdown(
-      `[🔄 Refresh](command:copilot-bridge.refreshUsage) | [📌 ${isPinned ? 'Change / Unpin' : 'Pin Provider'}](command:copilot-bridge.selectStatusBarProvider) | [🔑 Keys](command:copilot-bridge.configureUsageKey) | [🩺 Diagnostics](command:copilot-bridge.runDiagnostics)\n\n`
+      `[🔄 Refresh](command:copilot-provider-bridge.refreshUsage) | [📌 ${isPinned ? 'Change / Unpin' : 'Pin Provider'}](command:copilot-provider-bridge.selectStatusBarProvider) | [🔑 Keys](command:copilot-provider-bridge.configureUsageKey) | [🩺 Diagnostics](command:copilot-provider-bridge.runDiagnostics)\n\n`
     );
 
     md.appendMarkdown(`| Provider | Remaining / Balance | Meter | Reset | Status |\n`);

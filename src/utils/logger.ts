@@ -1,4 +1,4 @@
-// Debug logging and diagnostics manager for Copilot Bridge.
+// Debug logging and diagnostics manager for Copilot Provider Bridge.
 // Outputs to a dedicated VS Code Output Channel and optional local log file.
 // All sensitive API keys are automatically masked in logs.
 
@@ -14,20 +14,20 @@ export class Logger {
 
   static initialize(context: vscode.ExtensionContext): void {
     this._context = context;
-    this._channel = vscode.window.createOutputChannel('Copilot Bridge');
-    this._logFilePath = path.join(homedir(), 'copilot-bridge-debug.log');
+    this._channel = vscode.window.createOutputChannel('Copilot Provider Bridge');
+    this._logFilePath = path.join(homedir(), 'copilot-provider-bridge-debug.log');
     context.subscriptions.push(this._channel);
   }
 
   /** Check if debug logging is enabled in settings. */
   static isDebugEnabled(): boolean {
-    const config = vscode.workspace.getConfiguration('copilotBridge');
+    const config = vscode.workspace.getConfiguration('copilotProviderBridge');
     return config.get<boolean>('debugLogging', false);
   }
 
   /** Toggle debug logging on or off. */
   static async toggleDebugLogging(): Promise<boolean> {
-    const config = vscode.workspace.getConfiguration('copilotBridge');
+    const config = vscode.workspace.getConfiguration('copilotProviderBridge');
     const current = config.get<boolean>('debugLogging', false);
     const updated = !current;
     await config.update('debugLogging', updated, vscode.ConfigurationTarget.Global);
@@ -35,7 +35,7 @@ export class Logger {
     return updated;
   }
 
-  /** Show and focus the Copilot Bridge Output Channel. */
+  /** Show and focus the Copilot Provider Bridge Output Channel. */
   static showChannel(): void {
     this._channel?.show(true);
   }

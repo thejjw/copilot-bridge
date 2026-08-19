@@ -55,5 +55,5 @@ export function getPieGlyph(percent: number): string {
 /** Get a clean Datatype codicon reference for a 0-100 percentage. */
 export function getDatatypeIcon(percent: number): string {
   const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-  return `$(copilot-bridge-p${clamped})`;
+  return `$(copilot-provider-bridge-p${clamped})`;
 }

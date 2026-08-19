@@ -30,7 +30,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
       provider: p,
     })),
     {
-      title: 'Copilot Bridge - Add Model: Select Provider',
+      title: 'Copilot Provider Bridge - Add Model: Select Provider',
       placeHolder: 'Choose a coding-plan provider',
       ignoreFocusOut: true,
     }
@@ -42,7 +42,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
   // Prompt and validate API key
   let keyValidated = false;
   let keyToUse: string | undefined;
-  const secretKey = `copilot-bridge.${provider.id}.apiKey`;
+  const secretKey = `copilot-provider-bridge.${provider.id}.apiKey`;
 
   while (!keyValidated && context) {
     const existingSecret = await context.secrets.get(secretKey);
@@ -50,7 +50,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
     const existingKey = existingSecret ?? existingEnv;
 
     const inputKey = await vscode.window.showInputBox({
-      title: `Copilot Bridge: API Key for ${provider.name}`,
+      title: `Copilot Provider Bridge: API Key for ${provider.name}`,
       prompt: existingKey
         ? `Detected existing key (${Logger.maskSecret(existingKey)}). Press Enter to test & keep, or enter new key:`
         : `Enter your ${provider.name} API key (stored securely in SecretStorage):`,
@@ -113,7 +113,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
       model: m,
     })),
     {
-      title: `Copilot Bridge - ${provider.name}: Select Models`,
+      title: `Copilot Provider Bridge - ${provider.name}: Select Models`,
       placeHolder: 'Choose one or more models to add (Enter to confirm)',
       ignoreFocusOut: true,
       canPickMany: true,
@@ -133,7 +133,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
   Logger.info(`Wrote ${models.length} models for ${provider.name} to chatLanguageModels.json`);
 
   if (context) {
-    void vscode.commands.executeCommand('copilot-bridge.refreshUsage');
+    void vscode.commands.executeCommand('copilot-provider-bridge.refreshUsage');
   }
 
   // Step A: Check for companion MCP tools for this provider
@@ -153,7 +153,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
         },
       ],
       {
-        title: `Copilot Bridge - Companion MCP Tools for ${provider.name}`,
+        title: `Copilot Provider Bridge - Companion MCP Tools for ${provider.name}`,
         placeHolder: 'Would you like to install companion MCP servers for this provider?',
       }
     );
@@ -178,7 +178,7 @@ export async function addModelCommand(context?: vscode.ExtensionContext): Promis
       }
 
       const targetPick = await vscode.window.showQuickPick(targetOptions, {
-        title: `Copilot Bridge - Choose MCP Target File`,
+        title: `Copilot Provider Bridge - Choose MCP Target File`,
         placeHolder: 'Select target mcp.json file',
         ignoreFocusOut: true,
       });

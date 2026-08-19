@@ -44,7 +44,7 @@ export interface Provider {
   endpointUrl: string;
   /** Default API protocol. */
   apiType: 'messages' | 'chat-completions';
-  /** Suffix used in ${input:...} placeholder, e.g. copilot-bridge.zai.apiKey. */
+  /** Suffix used in ${input:...} placeholder, e.g. copilot-provider-bridge.zai.apiKey. */
   secretInput: string;
   /** Custom authentication headers (e.g. Authorization: Bearer ${apiKey}). */
   requestHeaders?: Record<string, string>;
@@ -59,7 +59,7 @@ export const PROVIDERS: Provider[] = [
     description: 'Z.ai GLM-5.3 (1M) / GLM-4.7 / GLM-5V-Turbo via Coding Plan endpoints.',
     endpointUrl: 'https://api.z.ai/api/anthropic/v1/messages',
     apiType: 'messages',
-    secretInput: 'copilot-bridge.zai.apiKey',
+    secretInput: 'copilot-provider-bridge.zai.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },
@@ -108,7 +108,7 @@ export const PROVIDERS: Provider[] = [
     description: 'DeepSeek V4 Pro / Flash (1M, 384K Out).',
     endpointUrl: 'https://api.deepseek.com/anthropic/v1/messages',
     apiType: 'messages',
-    secretInput: 'copilot-bridge.deepseek.apiKey',
+    secretInput: 'copilot-provider-bridge.deepseek.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },
@@ -145,7 +145,7 @@ export const PROVIDERS: Provider[] = [
     description: 'MiniMax M3 (1M Context + Vision) via MiniMax Anthropic endpoint.',
     endpointUrl: 'https://api.minimax.io/anthropic/v1/messages',
     apiType: 'messages',
-    secretInput: 'copilot-bridge.minimax.apiKey',
+    secretInput: 'copilot-provider-bridge.minimax.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },
@@ -170,7 +170,7 @@ export const PROVIDERS: Provider[] = [
     description: 'Kimi K3 (1M Context + Vision) via Kimi Coding Anthropic endpoint.',
     endpointUrl: 'https://api.kimi.com/coding/v1/messages',
     apiType: 'messages',
-    secretInput: 'copilot-bridge.kimi.apiKey',
+    secretInput: 'copilot-provider-bridge.kimi.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },
@@ -195,7 +195,7 @@ export const PROVIDERS: Provider[] = [
     description: 'Qwen 3.8 Max (1M) / Qwen 3.7 Plus (256K) via Alibaba Cloud Token Plan Anthropic App.',
     endpointUrl: 'https://token-plan.ap-southeast-1.maas.aliyuncs.com/apps/anthropic/v1/messages',
     apiType: 'messages',
-    secretInput: 'copilot-bridge.qwen.apiKey',
+    secretInput: 'copilot-provider-bridge.qwen.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },
@@ -244,7 +244,7 @@ export const PROVIDERS: Provider[] = [
     description: 'Gemini 3.7 / 2.5 Pro & Flash via Google AI Studio API (requires active project quota).',
     endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
     apiType: 'chat-completions',
-    secretInput: 'copilot-bridge.gemini.apiKey',
+    secretInput: 'copilot-provider-bridge.gemini.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },
@@ -354,11 +354,11 @@ export const PROVIDERS: Provider[] = [
     description: 'OpenRouter Free Models Router (zero-cost) & Auto Router (intelligent model selection).',
     endpointUrl: 'https://openrouter.ai/api/v1/chat/completions',
     apiType: 'chat-completions',
-    secretInput: 'copilot-bridge.openrouter.apiKey',
+    secretInput: 'copilot-provider-bridge.openrouter.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
-      'HTTP-Referer': 'https://github.com/thejjw/copilot-bridge',
-      'X-Title': 'Copilot Bridge',
+      'HTTP-Referer': 'https://github.com/thejjw/copilot-provider-bridge',
+      'X-Title': 'Copilot Provider Bridge',
     },
     models: [
       {
@@ -390,7 +390,7 @@ export const PROVIDERS: Provider[] = [
     description: 'NVIDIA NIM Inference endpoints for Nemotron, Laguna, Inkling, Muse Glimmer, GLM & MiniMax.',
     endpointUrl: 'https://integrate.api.nvidia.com/v1/chat/completions',
     apiType: 'chat-completions',
-    secretInput: 'copilot-bridge.nvidia.apiKey',
+    secretInput: 'copilot-provider-bridge.nvidia.apiKey',
     requestHeaders: {
       Authorization: 'Bearer ${apiKey}',
     },

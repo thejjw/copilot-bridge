@@ -1,4 +1,4 @@
-// Deep verification & smoke test for Copilot Bridge.
+// Deep verification & smoke test for Copilot Provider Bridge.
 //
 // Tests:
 //   1. Bundle sanity (exposes commands, bundles catalog, syntax valid).
@@ -26,7 +26,7 @@
 //      - Asserts hover tooltip renders all details and error messages.
 //   5. Vision Agent Tool & Backends:
 //      - Asserts VISION_BACKENDS has 7 backends (GLM-4.6V, GLM-5V-Turbo, Gemini Flash/Pro, MiniMax M3, Kimi K3, Qwen 3.8 Max).
-//      - Asserts CopilotBridgeVisionTool.toolId is copilot_bridge_analyze_visual.
+//      - Asserts CopilotProviderBridgeVisionTool.toolId is copilot_provider_bridge_analyze_visual.
 //      - Asserts tool resolution falls back gracefully when keys are missing or preferred is selected.
 //   6. Packaged .vsix existence and non-zero size.
 
@@ -51,25 +51,25 @@ function check(name, cond, detail) {
   }
 }
 
-console.log('== Copilot Bridge Comprehensive Smoke Test ==\n');
+console.log('== Copilot Provider Bridge Comprehensive Smoke Test ==\n');
 
 console.log('-- 1. Bundle Structural Sanity --');
 check('bundle has activate()', /\bfunction activate\s*\(/.test(bundled));
 check('bundle has deactivate()', /\bfunction deactivate\s*\(/.test(bundled));
-check('bundle registers quickSetup command', bundled.includes('copilot-bridge.quickSetup'));
-check('bundle registers addModel command', bundled.includes('copilot-bridge.addModel'));
-check('bundle registers removeModel command', bundled.includes('copilot-bridge.removeModel'));
-check('bundle registers listModels command', bundled.includes('copilot-bridge.listModels'));
-check('bundle registers configureMcp command', bundled.includes('copilot-bridge.configureMcp'));
-check('bundle registers removeMcp command', bundled.includes('copilot-bridge.removeMcp'));
-check('bundle registers configureUsageKey command', bundled.includes('copilot-bridge.configureUsageKey'));
-check('bundle registers selectStatusBarProvider command', bundled.includes('copilot-bridge.selectStatusBarProvider'));
-check('bundle registers refreshUsage command', bundled.includes('copilot-bridge.refreshUsage'));
-check('bundle registers selectVisionModel command', bundled.includes('copilot-bridge.selectVisionModel'));
-check('bundle registers runDiagnostics command', bundled.includes('copilot-bridge.runDiagnostics'));
-check('bundle registers showDebugLogs command', bundled.includes('copilot-bridge.showDebugLogs'));
-check('bundle registers toggleDebugLogging command', bundled.includes('copilot-bridge.toggleDebugLogging'));
-check('bundle registers resetConfiguration command', bundled.includes('copilot-bridge.resetConfiguration'));
+check('bundle registers quickSetup command', bundled.includes('copilot-provider-bridge.quickSetup'));
+check('bundle registers addModel command', bundled.includes('copilot-provider-bridge.addModel'));
+check('bundle registers removeModel command', bundled.includes('copilot-provider-bridge.removeModel'));
+check('bundle registers listModels command', bundled.includes('copilot-provider-bridge.listModels'));
+check('bundle registers configureMcp command', bundled.includes('copilot-provider-bridge.configureMcp'));
+check('bundle registers removeMcp command', bundled.includes('copilot-provider-bridge.removeMcp'));
+check('bundle registers configureUsageKey command', bundled.includes('copilot-provider-bridge.configureUsageKey'));
+check('bundle registers selectStatusBarProvider command', bundled.includes('copilot-provider-bridge.selectStatusBarProvider'));
+check('bundle registers refreshUsage command', bundled.includes('copilot-provider-bridge.refreshUsage'));
+check('bundle registers selectVisionModel command', bundled.includes('copilot-provider-bridge.selectVisionModel'));
+check('bundle registers runDiagnostics command', bundled.includes('copilot-provider-bridge.runDiagnostics'));
+check('bundle registers showDebugLogs command', bundled.includes('copilot-provider-bridge.showDebugLogs'));
+check('bundle registers toggleDebugLogging command', bundled.includes('copilot-provider-bridge.toggleDebugLogging'));
+check('bundle registers resetConfiguration command', bundled.includes('copilot-provider-bridge.resetConfiguration'));
 check('bundle uses ${input: secret placeholders', bundled.includes('${input:'));
 check('bundle uses Authorization: Bearer ${apiKey}', bundled.includes('Bearer ${apiKey}'));
 console.log('\n-- 2. Real JSON Generation & Invariant Assertions --');
@@ -146,7 +146,7 @@ const getPieGlyph = moduleScope.exports.getPieGlyph;
 const formatCountdown = moduleScope.exports.formatCountdown;
 const UsageStatusBarManager = moduleScope.exports.UsageStatusBarManager;
 const VISION_BACKENDS = moduleScope.exports.VISION_BACKENDS;
-const CopilotBridgeVisionTool = moduleScope.exports.CopilotBridgeVisionTool;
+const CopilotProviderBridgeVisionTool = moduleScope.exports.CopilotProviderBridgeVisionTool;
 const Logger = moduleScope.exports.Logger;
 check('PROVIDERS array exported and has 7 active providers', Array.isArray(providers) && providers.length === 7, `length=${providers?.length}`);
 
@@ -349,7 +349,7 @@ const mockContext = {
   },
   secrets: {
     get: async (k) => {
-      if (k === 'copilot-bridge.zai.apiKey') return 'mock-zai-key';
+      if (k === 'copilot-provider-bridge.zai.apiKey') return 'mock-zai-key';
       return undefined;
     },
     store: async () => {},
@@ -359,10 +359,10 @@ const sbManager = new UsageStatusBarManager(mockContext);
 check('sbManager initializes with default active provider zai', sbManager.getActiveProviderId() === 'zai');
 await sbManager.setPinnedProvider('deepseek');
 check('sbManager persists and returns pinned provider deepseek', sbManager.getActiveProviderId() === 'deepseek');
-check('mockGlobalState stored pinned provider', mockGlobalState.get('copilotBridge.pinnedProvider') === 'deepseek');
+check('mockGlobalState stored pinned provider', mockGlobalState.get('copilotProviderBridge.pinnedProvider') === 'deepseek');
 await sbManager.setPinnedProvider(undefined);
 check('sbManager unpin restores auto-select mode', sbManager.getActiveProviderId() === 'zai');
-check('mockGlobalState cleared pinned provider on unpin', mockGlobalState.get('copilotBridge.pinnedProvider') === undefined);
+check('mockGlobalState cleared pinned provider on unpin', mockGlobalState.get('copilotProviderBridge.pinnedProvider') === undefined);
 await sbManager.setPinnedProvider('zai');
 const zaiReport = {
   providerId: 'zai',
@@ -383,7 +383,7 @@ const zaiReport = {
 };
 sbManager['_reports'].set('zai', zaiReport);
 await sbManager.setPinnedProvider('zai');
-check('percentage model status bar text has Datatype icon and percent "$(copilot-bridge-p99) 99%"', mockStatusBarItem.text === '$(copilot-bridge-p99) 99%', `got "${mockStatusBarItem.text}"`);
+check('percentage model status bar text has Datatype icon and percent "$(copilot-provider-bridge-p99) 99%"', mockStatusBarItem.text === '$(copilot-provider-bridge-p99) 99%', `got "${mockStatusBarItem.text}"`);
 
 const dsReport = {
   providerId: 'deepseek',
@@ -417,8 +417,8 @@ sbManager['_reports'].set('kimi', kimiReport);
 sbManager.render();
 const tooltipText = mockStatusBarItem.tooltip?.value ?? '';
 check('tooltip contains SVG progress meters (data:image/svg+xml;base64)', tooltipText.includes('data:image/svg+xml;base64,'));
-check('tooltip contains clickable refresh command link', tooltipText.includes('command:copilot-bridge.refreshUsage'));
-check('tooltip contains clickable pin provider command link', tooltipText.includes('command:copilot-bridge.selectStatusBarProvider'));
+check('tooltip contains clickable refresh command link', tooltipText.includes('command:copilot-provider-bridge.refreshUsage'));
+check('tooltip contains clickable pin provider command link', tooltipText.includes('command:copilot-provider-bridge.selectStatusBarProvider'));
 check('tooltip contains Z.ai first detail (calls left)', tooltipText.includes('3,950 / 4,000 calls left'));
 check('tooltip contains Z.ai second detail (5h token limit)', tooltipText.includes('5-hour token limit: 99% remaining'));
 check('tooltip contains 5-Hour Token Limit reset', tooltipText.includes('5-Hour Token Limit Reset'));
@@ -431,7 +431,7 @@ check('balance model status bar text is strictly balance amount "¥299.79"', moc
 // Test fallback when neither percentage nor balance is present, or when reports is empty
 sbManager['_reports'].clear();
 sbManager.render();
-check('empty reports status bar text is strictly "Copilot-Bridge"', mockStatusBarItem.text === 'Copilot-Bridge', `got "${mockStatusBarItem.text}"`);
+check('empty reports status bar text is strictly "Copilot-Provider-Bridge"', mockStatusBarItem.text === 'Copilot-Provider-Bridge', `got "${mockStatusBarItem.text}"`);
 
 const emptyReport = {
   providerId: 'gemini',
@@ -442,15 +442,15 @@ const emptyReport = {
 };
 sbManager['_reports'].set('gemini', emptyReport);
 await sbManager.setPinnedProvider('gemini');
-check('no-metric model status bar text is strictly "Copilot-Bridge"', mockStatusBarItem.text === 'Copilot-Bridge', `got "${mockStatusBarItem.text}"`);
+check('no-metric model status bar text is strictly "Copilot-Provider-Bridge"', mockStatusBarItem.text === 'Copilot-Provider-Bridge', `got "${mockStatusBarItem.text}"`);
 
 console.log('\n-- 6. Vision Agent Tool & Backends --');
 check('VISION_BACKENDS exported and has 7 options', Array.isArray(VISION_BACKENDS) && VISION_BACKENDS.length === 7, `length=${VISION_BACKENDS?.length}`);
-check('CopilotBridgeVisionTool.toolId is copilot_bridge_analyze_visual', CopilotBridgeVisionTool.toolId === 'copilot_bridge_analyze_visual');
+check('CopilotProviderBridgeVisionTool.toolId is copilot_provider_bridge_analyze_visual', CopilotProviderBridgeVisionTool.toolId === 'copilot_provider_bridge_analyze_visual');
 // Check package.json contribution fields
 const pkgJson = JSON.parse(await readFile(join(here, '..', 'package.json'), 'utf8'));
 const contribTool = pkgJson.contributes?.languageModelTools?.[0];
-check('package.json contributes languageModelTools with name', contribTool?.name === 'copilot_bridge_analyze_visual');
+check('package.json contributes languageModelTools with name', contribTool?.name === 'copilot_provider_bridge_analyze_visual');
 check('package.json contributes toolReferenceName: vision', contribTool?.toolReferenceName === 'vision');
 check('package.json contributes canBeReferencedInPrompt: true', contribTool?.canBeReferencedInPrompt === true);
 check('package.json contributes inputSchema with file_path & image_url',
@@ -458,13 +458,13 @@ check('package.json contributes inputSchema with file_path & image_url',
   contribTool?.inputSchema?.properties?.image_url !== undefined
 );
 
-const visionTool = new CopilotBridgeVisionTool(mockContext);
+const visionTool = new CopilotProviderBridgeVisionTool(mockContext);
 // Test backend resolution: with mock zai key, should resolve GLM-4.6V or preferred
 const resolved = await visionTool.resolveBackend();
 check('visionTool resolves backend using available key (zai)', resolved?.backend?.providerId === 'zai' && resolved?.apiKey === 'mock-zai-key');
 
 // Test preferred model pin with nonexistent model or missing key
-await mockContext.globalState.update('copilotBridge.preferredVisionModel', 'nonexistent-model');
+await mockContext.globalState.update('copilotProviderBridge.preferredVisionModel', 'nonexistent-model');
 const fallback = await visionTool.resolveBackend();
 check('visionTool falls back gracefully when preferred model key is missing', fallback?.backend?.providerId === 'zai');
 
@@ -510,15 +510,15 @@ try {
 
 console.log('\n-- 8.1. Reset Configuration Command Assertions --');
 const resetConfigurationCommand = moduleScope.exports.resetConfigurationCommand;
-const resetCopilotBridgeState = moduleScope.exports.resetCopilotBridgeState;
+const resetCopilotProviderBridgeState = moduleScope.exports.resetCopilotProviderBridgeState;
 check('resetConfigurationCommand is exported', typeof resetConfigurationCommand === 'function');
-check('resetCopilotBridgeState is exported', typeof resetCopilotBridgeState === 'function');
+check('resetCopilotProviderBridgeState is exported', typeof resetCopilotProviderBridgeState === 'function');
 
 const mockSecretStore = new Map();
-mockSecretStore.set('copilot-bridge.zai.apiKey', 'secret-key-1');
-mockSecretStore.set('copilot-bridge.deepseek.apiKey', 'secret-key-2');
-mockGlobalState.set('copilotBridge.hasRunSetup', true);
-mockGlobalState.set('copilotBridge.pinnedProvider', 'zai');
+mockSecretStore.set('copilot-provider-bridge.zai.apiKey', 'secret-key-1');
+mockSecretStore.set('copilot-provider-bridge.deepseek.apiKey', 'secret-key-2');
+mockGlobalState.set('copilotProviderBridge.hasRunSetup', true);
+mockGlobalState.set('copilotProviderBridge.pinnedProvider', 'zai');
 
 const testResetContext = {
   secrets: {
@@ -535,7 +535,7 @@ const testResetContext = {
   },
 };
 
-// Test resetCopilotBridgeState against isolated temporary files (NEVER touches %APPDATA%)
+// Test resetCopilotProviderBridgeState against isolated temporary files (NEVER touches %APPDATA%)
 const tmpDir = join(nodeOs.tmpdir(), `cb-test-${Date.now()}`);
 await mkdir(tmpDir, { recursive: true });
 const tmpConfig = join(tmpDir, 'chatLanguageModels.json');
@@ -543,7 +543,7 @@ const tmpMcp = join(tmpDir, 'mcp.json');
 
 // Seed temp files with bridge and non-bridge entries
 await writeFile(tmpConfig, JSON.stringify([
-  { name: 'Z.ai GLM Coding Plan', vendor: 'customendpoint', apiKey: '${input:copilot-bridge.zai.apiKey}' },
+  { name: 'Z.ai GLM Coding Plan', vendor: 'customendpoint', apiKey: '${input:copilot-provider-bridge.zai.apiKey}' },
   { name: 'Custom Ollama Local', vendor: 'customendpoint', apiKey: 'ollama-key' }
 ], null, 2));
 
@@ -554,14 +554,14 @@ await writeFile(tmpMcp, JSON.stringify({
   }
 }, null, 2));
 
-await resetCopilotBridgeState(testResetContext, {
+await resetCopilotProviderBridgeState(testResetContext, {
   customConfigPath: tmpConfig,
   customMcpPaths: [tmpMcp],
 });
 
-check('resetCopilotBridgeState deletes all provider secrets from SecretStorage', mockSecretStore.size === 0);
-check('resetCopilotBridgeState clears hasRunSetup in globalState', mockGlobalState.get('copilotBridge.hasRunSetup') === undefined);
-check('resetCopilotBridgeState clears pinnedProvider in globalState', mockGlobalState.get('copilotBridge.pinnedProvider') === undefined);
+check('resetCopilotProviderBridgeState deletes all provider secrets from SecretStorage', mockSecretStore.size === 0);
+check('resetCopilotProviderBridgeState clears hasRunSetup in globalState', mockGlobalState.get('copilotProviderBridge.hasRunSetup') === undefined);
+check('resetCopilotProviderBridgeState clears pinnedProvider in globalState', mockGlobalState.get('copilotProviderBridge.pinnedProvider') === undefined);
 
 // Verify temp files: bridge entries removed, non-bridge retained
 const cleanedConfig = JSON.parse(await readFile(tmpConfig, 'utf8'));
@@ -580,9 +580,9 @@ check('package-lock.json resolved @types/vscode is 1.120.0 (<= 1.122.0)', pkgLoc
 const pkgIcons = pkgJson.contributes?.icons;
 check('package.json contributes icons object', pkgIcons !== undefined && typeof pkgIcons === 'object');
 check('package.json contributes exactly 101 icons (0% to 100%)', Object.keys(pkgIcons || {}).length === 101);
-check('copilot-bridge-p0 is defined with Datatype.woff2 and {p:0}', pkgIcons?.['copilot-bridge-p0']?.default?.fontPath === './media/fonts/Datatype.woff2' && pkgIcons?.['copilot-bridge-p0']?.default?.fontCharacter === '{p:0}');
-check('copilot-bridge-p73 is defined with Datatype.woff2 and {p:73}', pkgIcons?.['copilot-bridge-p73']?.default?.fontPath === './media/fonts/Datatype.woff2' && pkgIcons?.['copilot-bridge-p73']?.default?.fontCharacter === '{p:73}');
-check('copilot-bridge-p100 is defined with Datatype.woff2 and {p:100}', pkgIcons?.['copilot-bridge-p100']?.default?.fontPath === './media/fonts/Datatype.woff2' && pkgIcons?.['copilot-bridge-p100']?.default?.fontCharacter === '{p:100}');
+check('copilot-provider-bridge-p0 is defined with Datatype.woff2 and {p:0}', pkgIcons?.['copilot-provider-bridge-p0']?.default?.fontPath === './media/fonts/Datatype.woff2' && pkgIcons?.['copilot-provider-bridge-p0']?.default?.fontCharacter === '{p:0}');
+check('copilot-provider-bridge-p73 is defined with Datatype.woff2 and {p:73}', pkgIcons?.['copilot-provider-bridge-p73']?.default?.fontPath === './media/fonts/Datatype.woff2' && pkgIcons?.['copilot-provider-bridge-p73']?.default?.fontCharacter === '{p:73}');
+check('copilot-provider-bridge-p100 is defined with Datatype.woff2 and {p:100}', pkgIcons?.['copilot-provider-bridge-p100']?.default?.fontPath === './media/fonts/Datatype.woff2' && pkgIcons?.['copilot-provider-bridge-p100']?.default?.fontCharacter === '{p:100}');
 const fontStat = await stat(join(here, '..', 'media', 'fonts', 'Datatype.woff2')).catch(() => null);
 check('media/fonts/Datatype.woff2 exists and is non-empty', fontStat !== null && fontStat.size > 10000, `size=${fontStat?.size}`);
 const oflStat = await stat(join(here, '..', 'media', 'fonts', 'OFL.txt')).catch(() => null);

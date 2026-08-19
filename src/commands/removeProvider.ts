@@ -4,21 +4,21 @@ import { hasAnyBridgeGroup, readConfig, writeConfig } from '../config';
 /**
  * Remove a previously-added bridge group from chatLanguageModels.json.
  * Refuses to remove groups that weren't created by this extension (the apiKey
- * placeholder contains the `copilot-bridge.` marker).
+ * placeholder contains the `copilot-provider-bridge.` marker).
  */
 export async function removeModelCommand(): Promise<void> {
   const cfg = await readConfig();
 
   if (!hasAnyBridgeGroup(cfg)) {
     void vscode.window.showInformationMessage(
-      'Copilot Bridge: no managed provider groups found. Use "Add Model" first.',
+      'Copilot Provider Bridge: no managed provider groups found. Use "Add Model" first.',
     );
     return;
   }
 
   const picks = cfg
     .map((g, i) => ({ group: g, index: i }))
-    .filter(({ group }) => group.apiKey.includes('copilot-bridge.'))
+    .filter(({ group }) => group.apiKey.includes('copilot-provider-bridge.'))
     .map(({ group, index }) => ({
       label: group.name,
       description: `${group.models.length} model${group.models.length === 1 ? '' : 's'}`,
@@ -27,7 +27,7 @@ export async function removeModelCommand(): Promise<void> {
     }));
 
   const pick = await vscode.window.showQuickPick(picks, {
-    title: 'Copilot Bridge - Remove Model',
+    title: 'Copilot Provider Bridge - Remove Model',
     placeHolder: 'Choose a provider group to remove',
     ignoreFocusOut: true,
   });
@@ -44,6 +44,6 @@ export async function removeModelCommand(): Promise<void> {
   await writeConfig(cfg);
 
   void vscode.window.showInformationMessage(
-    `Copilot Bridge: removed "${pick.label}". Restart VS Code for the change to take effect.`,
+    `Copilot Provider Bridge: removed "${pick.label}". Restart VS Code for the change to take effect.`,
   );
 }

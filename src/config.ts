@@ -38,7 +38,7 @@ export interface ConfigGroup {
 export type ConfigFile = ConfigGroup[];
 
 /** Marker we use to recognize groups we wrote. The value matches the secretInput. */
-export const EXTENSION_MARKER = 'copilot-bridge.';
+export const EXTENSION_MARKER = 'copilot-provider-bridge.';
 
 /** Detect "Code" vs "Code - Insiders" from the running editor's appRoot. */
 function codeFlavor(): string {

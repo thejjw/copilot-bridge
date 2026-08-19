@@ -12,7 +12,7 @@ import { selectVisionModelCommand } from './commands/selectVisionModel';
 import { runDiagnosticsCommand } from './commands/diagnostics';
 import { UsageStatusBarManager } from './usage/statusBar';
 import { resetConfigurationCommand } from './commands/resetConfiguration';
-import { CopilotBridgeVisionTool, VISION_BACKENDS } from './tools/visionTool';
+import { CopilotProviderBridgeVisionTool, VISION_BACKENDS } from './tools/visionTool';
 import { Logger } from './utils/logger';
 
 export { PROVIDERS, type Provider, type ProviderId, type ProviderModel } from './providers';
@@ -42,15 +42,15 @@ export { configureUsageKeyCommand } from './commands/configureUsageKey';
 export { selectVisionModelCommand } from './commands/selectVisionModel';
 export { runDiagnosticsCommand } from './commands/diagnostics';
 export { UsageStatusBarManager } from './usage/statusBar';
-export { resetConfigurationCommand, resetCopilotBridgeState } from './commands/resetConfiguration';
+export { resetConfigurationCommand, resetCopilotProviderBridgeState } from './commands/resetConfiguration';
 export { getPieGlyph, formatCountdown, type UsageReport } from './usage/types';
-export { CopilotBridgeVisionTool, VISION_BACKENDS } from './tools/visionTool';
+export { CopilotProviderBridgeVisionTool, VISION_BACKENDS } from './tools/visionTool';
 export { Logger } from './utils/logger';
 
 export function activate(context: vscode.ExtensionContext): void {
   // Initialize Logger
   Logger.initialize(context);
-  Logger.debug('Activating Copilot Bridge extension...');
+  Logger.debug('Activating Copilot Provider Bridge extension...');
 
   // Initialize status bar usage manager
   const statusBarManager = new UsageStatusBarManager(context);
@@ -58,49 +58,49 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Register built-in Vision Agent LanguageModelTool
   if (typeof vscode.lm?.registerTool === 'function') {
-    const visionTool = new CopilotBridgeVisionTool(context);
-    context.subscriptions.push(vscode.lm.registerTool(CopilotBridgeVisionTool.toolId, visionTool));
-    Logger.debug(`Registered LanguageModelTool: ${CopilotBridgeVisionTool.toolId}`);
+    const visionTool = new CopilotProviderBridgeVisionTool(context);
+    context.subscriptions.push(vscode.lm.registerTool(CopilotProviderBridgeVisionTool.toolId, visionTool));
+    Logger.debug(`Registered LanguageModelTool: ${CopilotProviderBridgeVisionTool.toolId}`);
   }
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('copilot-bridge.quickSetup', () => quickSetupCommand(context)),
-    vscode.commands.registerCommand('copilot-bridge.addModel', () => addModelCommand(context)),
-    vscode.commands.registerCommand('copilot-bridge.removeModel', removeModelCommand),
-    vscode.commands.registerCommand('copilot-bridge.listModels', listModelsCommand),
-    vscode.commands.registerCommand('copilot-bridge.configureMcp', configureMcpCommand),
-    vscode.commands.registerCommand('copilot-bridge.removeMcp', removeMcpCommand),
-    vscode.commands.registerCommand('copilot-bridge.configureUsageKey', (providerId) =>
+    vscode.commands.registerCommand('copilot-provider-bridge.quickSetup', () => quickSetupCommand(context)),
+    vscode.commands.registerCommand('copilot-provider-bridge.addModel', () => addModelCommand(context)),
+    vscode.commands.registerCommand('copilot-provider-bridge.removeModel', removeModelCommand),
+    vscode.commands.registerCommand('copilot-provider-bridge.listModels', listModelsCommand),
+    vscode.commands.registerCommand('copilot-provider-bridge.configureMcp', configureMcpCommand),
+    vscode.commands.registerCommand('copilot-provider-bridge.removeMcp', removeMcpCommand),
+    vscode.commands.registerCommand('copilot-provider-bridge.configureUsageKey', (providerId) =>
       configureUsageKeyCommand(context, providerId)
     ),
-    vscode.commands.registerCommand('copilot-bridge.selectStatusBarProvider', () =>
+    vscode.commands.registerCommand('copilot-provider-bridge.selectStatusBarProvider', () =>
       statusBarManager.selectProviderInteractive()
     ),
-    vscode.commands.registerCommand('copilot-bridge.refreshUsage', () => statusBarManager.refresh()),
-    vscode.commands.registerCommand('copilot-bridge.selectVisionModel', () => selectVisionModelCommand(context)),
-    vscode.commands.registerCommand('copilot-bridge.runDiagnostics', () => runDiagnosticsCommand(context)),
-    vscode.commands.registerCommand('copilot-bridge.showDebugLogs', () => Logger.showChannel()),
-    vscode.commands.registerCommand('copilot-bridge.toggleDebugLogging', async () => {
+    vscode.commands.registerCommand('copilot-provider-bridge.refreshUsage', () => statusBarManager.refresh()),
+    vscode.commands.registerCommand('copilot-provider-bridge.selectVisionModel', () => selectVisionModelCommand(context)),
+    vscode.commands.registerCommand('copilot-provider-bridge.runDiagnostics', () => runDiagnosticsCommand(context)),
+    vscode.commands.registerCommand('copilot-provider-bridge.showDebugLogs', () => Logger.showChannel()),
+    vscode.commands.registerCommand('copilot-provider-bridge.toggleDebugLogging', async () => {
       const enabled = await Logger.toggleDebugLogging();
       void vscode.window.showInformationMessage(
-        `Copilot Bridge: Debug logging ${enabled ? 'ENABLED' : 'DISABLED'}.`
+        `Copilot Provider Bridge: Debug logging ${enabled ? 'ENABLED' : 'DISABLED'}.`
       );
     }),
-    vscode.commands.registerCommand('copilot-bridge.resetConfiguration', () =>
+    vscode.commands.registerCommand('copilot-provider-bridge.resetConfiguration', () =>
       resetConfigurationCommand(context)
     ),
   );
 
   // Check if first-time setup prompt has already been shown, dismissed, or completed
-  const hasPrompted = context.globalState.get<boolean>('copilotBridge.hasPromptedSetup');
-  const hasRun = context.globalState.get<boolean>('copilotBridge.hasRunSetup');
+  const hasPrompted = context.globalState.get<boolean>('copilotProviderBridge.hasPromptedSetup');
+  const hasRun = context.globalState.get<boolean>('copilotProviderBridge.hasRunSetup');
 
   if (!hasPrompted && !hasRun) {
     // Mark as prompted immediately so dismissing or choosing 'Later' does not prompt on every restart
-    void context.globalState.update('copilotBridge.hasPromptedSetup', true);
+    void context.globalState.update('copilotProviderBridge.hasPromptedSetup', true);
     void vscode.window
       .showInformationMessage(
-        'Welcome to Copilot Bridge! Would you like to run the Quick Setup to configure your coding plan models and companion MCP tools?',
+        'Welcome to Copilot Provider Bridge! Would you like to run the Quick Setup to configure your coding plan models and companion MCP tools?',
         'Run Quick Setup',
         'Later'
       )
@@ -111,7 +111,7 @@ export function activate(context: vscode.ExtensionContext): void {
       });
   }
 
-  Logger.info('Copilot Bridge extension activated successfully.');
+  Logger.info('Copilot Provider Bridge extension activated successfully.');
 }
 
 export function deactivate(): void {

@@ -1,4 +1,4 @@
-// Diagnostics and connectivity tester for Copilot Bridge.
+// Diagnostics and connectivity tester for Copilot Provider Bridge.
 // Validates chatLanguageModels.json, tests live API endpoints, measures latency,
 // and outputs a detailed diagnostic report to the Output Channel.
 
@@ -9,12 +9,12 @@ import { Logger } from '../utils/logger';
 
 export async function runDiagnosticsCommand(context: vscode.ExtensionContext): Promise<void> {
   Logger.showChannel();
-  Logger.info('=== Starting Copilot Bridge Diagnostics & Connectivity Test ===');
+  Logger.info('=== Starting Copilot Provider Bridge Diagnostics & Connectivity Test ===');
 
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
-      title: 'Running Copilot Bridge Diagnostics...',
+      title: 'Running Copilot Provider Bridge Diagnostics...',
       cancellable: false,
     },
     async (progress) => {
@@ -32,7 +32,7 @@ export async function runDiagnosticsCommand(context: vscode.ExtensionContext): P
       const keyMap = new Map<ProviderId, string>();
 
       for (const p of PROVIDERS) {
-        const secretKey = `copilot-bridge.${p.id}.apiKey`;
+        const secretKey = `copilot-provider-bridge.${p.id}.apiKey`;
         const secretVal = await context.secrets.get(secretKey);
         const envVal = process.env[`${p.id.toUpperCase()}_API_KEY`];
         const resolved = secretVal ?? envVal;
@@ -51,7 +51,7 @@ export async function runDiagnosticsCommand(context: vscode.ExtensionContext): P
       let failCount = 0;
 
       for (const group of cfg) {
-        const prov = PROVIDERS.find((p) => group.apiKey.includes(`copilot-bridge.${p.id}.`));
+        const prov = PROVIDERS.find((p) => group.apiKey.includes(`copilot-provider-bridge.${p.id}.`));
         const provId = prov?.id;
         const apiKey = provId ? keyMap.get(provId) : undefined;
 
@@ -126,5 +126,5 @@ export async function runDiagnosticsCommand(context: vscode.ExtensionContext): P
     }
   );
 
-  void vscode.window.showInformationMessage('Copilot Bridge Diagnostics finished. See Output Channel for details.');
+  void vscode.window.showInformationMessage('Copilot Provider Bridge Diagnostics finished. See Output Channel for details.');
 }

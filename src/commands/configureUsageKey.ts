@@ -35,7 +35,7 @@ export async function configureUsageKeyCommand(
         providerId: p.id,
       })),
       {
-        title: 'Copilot Bridge: Configure Usage API Key',
+        title: 'Copilot Provider Bridge: Configure Usage API Key',
         placeHolder: 'Select provider to configure usage API key',
         ignoreFocusOut: true,
       }
@@ -44,7 +44,7 @@ export async function configureUsageKeyCommand(
     providerId = pick.providerId;
   }
 
-  const secretKey = `copilot-bridge.${providerId}.apiKey`;
+  const secretKey = `copilot-provider-bridge.${providerId}.apiKey`;
   const existingKey =
     (await context.secrets.get(secretKey)) ??
     process.env[`${providerId.toUpperCase()}_API_KEY`];
@@ -53,7 +53,7 @@ export async function configureUsageKeyCommand(
   const providerName = provider?.name ?? providerId;
 
   const input = await vscode.window.showInputBox({
-    title: `Copilot Bridge: API Key for ${providerName}`,
+    title: `Copilot Provider Bridge: API Key for ${providerName}`,
     prompt: `Enter API key to enable live quota tracking and status bar display for ${providerName}`,
     placeHolder: existingKey ? '•••••••••••••••••••• (leave empty to keep current key)' : 'Enter API key...',
     password: true,
@@ -122,5 +122,5 @@ export async function configureUsageKeyCommand(
   );
 
   // Trigger immediate status bar refresh
-  await vscode.commands.executeCommand('copilot-bridge.refreshUsage');
+  await vscode.commands.executeCommand('copilot-provider-bridge.refreshUsage');
 }

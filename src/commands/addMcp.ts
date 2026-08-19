@@ -57,7 +57,7 @@ export async function writeMcpFile(filePath: string, config: McpConfigFile): Pro
   await fs.rename(tmp, filePath);
 }
 
-/** Command: Copilot Bridge: Configure MCP Tools */
+/** Command: Copilot Provider Bridge: Configure MCP Tools */
 export async function configureMcpCommand(): Promise<void> {
   const wsPath = workspaceMcpConfigPath();
   const targetOptions = [
@@ -79,7 +79,7 @@ export async function configureMcpCommand(): Promise<void> {
   }
 
   const targetPick = await vscode.window.showQuickPick(targetOptions, {
-    title: 'Copilot Bridge - Configure MCP Tools: Select Target',
+    title: 'Copilot Provider Bridge - Configure MCP Tools: Select Target',
     placeHolder: 'Where would you like to install the MCP tool configuration?',
     ignoreFocusOut: true,
   });
@@ -94,7 +94,7 @@ export async function configureMcpCommand(): Promise<void> {
       preset,
     })),
     {
-      title: 'Copilot Bridge - Select MCP Tools to Install',
+      title: 'Copilot Provider Bridge - Select MCP Tools to Install',
       placeHolder: 'Choose one or more MCP server presets (Enter to confirm)',
       ignoreFocusOut: true,
       canPickMany: true,
