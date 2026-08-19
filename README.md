@@ -102,6 +102,7 @@ Copilot Provider Bridge configures models and tools for VS Code's native BYOK en
 - **Copilot Provider Bridge: Show Debug Output Logs** — open the dedicated Copilot Provider Bridge output log channel.
 - **Copilot Provider Bridge: Toggle Debug Logging** — toggle verbose debug logging on or off.
 - **Copilot Provider Bridge: Reset All Configuration & Clear Secrets** — reset all Copilot Provider Bridge settings, clear stored secrets in SecretStorage, and clean up bridge models and companion MCP servers.
+
 ## Requirements
 
 - **VS Code 1.122 or later** (Custom Endpoint provider went Stable May 28 2026).
@@ -164,17 +165,21 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
 3. **Vision Agent**: Built-in Language Model Tool automatically delegates visual tasks from text-only models to your preferred multimodal model backend.
 4. **Usage**: Securely manages keys in extension SecretStorage (`context.secrets`) to poll active quota endpoints in background (Z.ai, DeepSeek, MiniMax, Kimi) and updates the compact status bar item and hover tooltip.
 5. **Diagnostics**: Validates endpoint connectivity and outputs diagnostic information to the Output Channel to help troubleshoot authorization and network issues.
+
 ## Acknowledgements & Font Credits
 
 - Status bar visual quota indicators bundle [Datatype](https://franktisellano.github.io/datatype/) by [Frank Tisellano](https://github.com/franktisellano/datatype), licensed under the [SIL Open Font License 1.1](./media/fonts/OFL.txt).
 
 ## Support & Maintenance
 
+This software is provided “as-is” without any express or implied warranty. The authors are not liable for any damages arising from its use.
+
 This extension is developed and published primarily for personal use. The GitHub repository linked as the "support site" is provided as a public resource for transparency and reference only. While feedback, suggestions, and issue reports are welcome and appreciated, responses, active support, or ongoing maintenance are not guaranteed.
 
 If you find this project helpful, feel free to support development:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/thejjw)
+
 ## License
 
 See `LICENSE`.
