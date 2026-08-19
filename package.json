@@ -68,7 +68,7 @@
     },
     "languageModelTools": [
       {
-        "name": "copilot_provider_bridge_analyze_visual",
+        "name": "provider_bridge_analyze_visual",
         "displayName": "Analyze Image / Visual Asset (Copilot Provider Bridge)",
         "modelDescription": "Inspect and analyze an image file (PNG, JPG, WebP), UI screenshot, diagram, or mockup. Use this tool when you need visual understanding, OCR text extraction, layout descriptions, or architecture analysis for any image.",
         "icon": "$(eye)",

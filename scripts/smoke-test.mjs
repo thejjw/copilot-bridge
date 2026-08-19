@@ -26,7 +26,7 @@
 //      - Asserts hover tooltip renders all details and error messages.
 //   5. Vision Agent Tool & Backends:
 //      - Asserts VISION_BACKENDS has 7 backends (GLM-4.6V, GLM-5V-Turbo, Gemini Flash/Pro, MiniMax M3, Kimi K3, Qwen 3.8 Max).
-//      - Asserts CopilotProviderBridgeVisionTool.toolId is copilot_provider_bridge_analyze_visual.
+//      - Asserts CopilotProviderBridgeVisionTool.toolId is provider_bridge_analyze_visual.
 //      - Asserts tool resolution falls back gracefully when keys are missing or preferred is selected.
 //   6. Packaged .vsix existence and non-zero size.
 
@@ -465,11 +465,11 @@ check('no-metric model status bar text is strictly "Copilot-Provider-Bridge"', m
 
 console.log('\n-- 6. Vision Agent Tool & Backends --');
 check('VISION_BACKENDS exported and has 7 options', Array.isArray(VISION_BACKENDS) && VISION_BACKENDS.length === 7, `length=${VISION_BACKENDS?.length}`);
-check('CopilotProviderBridgeVisionTool.toolId is copilot_provider_bridge_analyze_visual', CopilotProviderBridgeVisionTool.toolId === 'copilot_provider_bridge_analyze_visual');
+check('CopilotProviderBridgeVisionTool.toolId is provider_bridge_analyze_visual', CopilotProviderBridgeVisionTool.toolId === 'provider_bridge_analyze_visual');
 // Check package.json contribution fields
 const pkgJson = JSON.parse(await readFile(join(here, '..', 'package.json'), 'utf8'));
 const contribTool = pkgJson.contributes?.languageModelTools?.[0];
-check('package.json contributes languageModelTools with name', contribTool?.name === 'copilot_provider_bridge_analyze_visual');
+check('package.json contributes languageModelTools with name', contribTool?.name === 'provider_bridge_analyze_visual');
 check('package.json contributes toolReferenceName: vision', contribTool?.toolReferenceName === 'vision');
 check('package.json contributes canBeReferencedInPrompt: true', contribTool?.canBeReferencedInPrompt === true);
 check('package.json contributes inputSchema with file_path & image_url',

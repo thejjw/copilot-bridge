@@ -110,7 +110,7 @@ export interface VisionToolInput {
 }
 
 export class CopilotProviderBridgeVisionTool implements vscode.LanguageModelTool<VisionToolInput> {
-  static readonly toolId = 'copilot_provider_bridge_analyze_visual';
+  static readonly toolId = 'provider_bridge_analyze_visual';
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 

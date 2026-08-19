@@ -35,7 +35,7 @@ Enables **VS Code Copilot AI features** for users via existing third-party AI co
 
 ## Vision Agent Backends (Automatic Image Delegation)
 
-When using a text-only model (like `GLM-5.3` or `DeepSeek V4 Pro`), the built-in **Vision Agent Tool** (`copilot_provider_bridge_analyze_visual`) delegates image analysis to any of the following multimodal backends:
+When using a text-only model (like `GLM-5.3` or `DeepSeek V4 Pro`), the built-in **Vision Agent Tool** (`provider_bridge_analyze_visual`) delegates image analysis to any of the following multimodal backends:
 
 | Backend Model | Provider | Type | Description |
 |---|---|---|---|
@@ -84,7 +84,7 @@ Copilot Provider Bridge configures models and tools for VS Code's native BYOK en
   - Frontier coding models like `glm-5.3`, `glm-4.7`, `deepseek-v4-pro`, `deepseek-v4-flash`, and `qwen3.6-flash` are text-specialized.
   - When visual analysis is needed (e.g. analyzing a UI screenshot, chart, or layout mockup), prompt the model with the image path or URL:
     > *"Inspect the UI screenshot in `./assets/mockup.png` and generate the matching Tailwind CSS components."*
-  - The text-only model automatically invokes the built-in **Vision Agent Tool** (`copilot_provider_bridge_analyze_visual`), which queries your configured vision backend (`GLM-4.6V`, `Gemini 2.5 Flash`, etc.) and feeds structured OCR and layout analysis back into the coding session within its full context window (up to 1M on GLM-5.3 and DeepSeek V4 Pro, ~200K on GLM-4.7, 128K on Qwen 3.6 Flash).
+  - The text-only model automatically invokes the built-in **Vision Agent Tool** (`provider_bridge_analyze_visual`), which queries your configured vision backend (`GLM-4.6V`, `Gemini 2.5 Flash`, etc.) and feeds structured OCR and layout analysis back into the coding session within its full context window (up to 1M on GLM-5.3 and DeepSeek V4 Pro, ~200K on GLM-4.7, 128K on Qwen 3.6 Flash).
 
 ## Commands
 
