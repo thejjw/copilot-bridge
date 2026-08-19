@@ -174,7 +174,7 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
 
 This software is provided “as-is” without any express or implied warranty. The authors are not liable for any damages arising from its use.
 
-This extension is developed and published primarily for personal use. The GitHub repository linked as the "support site" is provided as a public resource for transparency and reference only. While feedback, suggestions, and issue reports are welcome and appreciated, responses, active support, or ongoing maintenance are not guaranteed.
+This extension is developed and published primarily for personal use. The GitHub repository is provided as a public resource for transparency and reference only. While feedback, suggestions, and issue reports are welcome and appreciated, responses, active support, or ongoing maintenance are not guaranteed.
 
 If you find this project helpful, feel free to support development:
 
