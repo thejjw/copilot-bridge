@@ -141,7 +141,7 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
 ### 2. Extension SecretStorage & Privacy Safeguards
 - **Encrypted Background Storage**: API keys validated during setup are concurrently stored in VS Code's encrypted `SecretStorage` (`context.secrets` via Windows DPAPI, macOS Keychain, or Linux Secret Service) for local quota polling, status bar usage indicators, and diagnostic connectivity probes.
 - **Zero Intermediate Proxy / Zero-Telemetry**: Copilot Provider Bridge does not proxy, intercept, or relay your chat traffic. All chat requests travel directly from VS Code to official provider endpoints over encrypted HTTPS/TLS.
-- **Log Sanitization**: All keys are automatically redacted in extension logs and Output Channel messages (`Logger.maskSecret()` $\rightarrow$ `5fc3...788`). Connectivity diagnostics proactively sanitize any reflected credentials from upstream error responses.
+- **Log Sanitization**: All keys are automatically redacted in extension logs and Output Channel messages (`Logger.maskSecret()` $\rightarrow$ `1234...567`). Connectivity diagnostics proactively sanitize any reflected credentials from upstream error responses.
 - **Factory Reset**: You can clear all extension secrets and purge bridge configurations at any time via the Command Palette: **`Copilot Provider Bridge: Reset All Configuration & Clear Secrets`**.
 
 ### 3. Known Limitations & Security Tradeoffs
@@ -157,6 +157,7 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
   - Use **`Copilot Provider Bridge: Reset All Configuration & Clear Secrets`** to purge all stored credentials and bridge definitions from your machine.
 - **Future Roadmap**:
   - If VS Code introduces an extension-accessible secret bridge for Custom Endpoints, or if Copilot Provider Bridge implements an in-process `vscode.lm.registerLanguageModelChatProvider` runtime streaming provider, credentials can be held exclusively in memory and `context.secrets`.
+  - **Status bar auto-select** (removed): the badge previously tried to guess the active provider from quota shape, which was deterministic-but-wrong (it always picked the first configured percentage plan). If VS Code ever exposes an API to observe the currently selected chat model (e.g. an `onDidChangeChatModel` event or a readable `chat.selectedModel` context), auto-select can return as a *true* active-model tracker rather than a heuristic.
 
 ## How it works
 
