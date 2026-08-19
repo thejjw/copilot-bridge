@@ -9,8 +9,8 @@ Enables **VS Code Copilot AI features** for users via existing third-party AI co
 3. **Built-in Vision Agent Tool**: Allows pure text-only models (like `GLM-5.3` and `DeepSeek V4 Pro`) to automatically delegate screenshot, UI mockup, and diagram inspection to any configured multimodal backend (`GLM-4.6V`, `GLM-5V-Turbo`, `Gemini 2.5 Flash`, `MiniMax M3`, `Kimi K3`, `Qwen 3.8 Max`).
 4. **Companion MCP Tools**: Configures verified MCP tool presets (`web-search-prime`, `web-reader`, `zread`, `zai-mcp-server`, `minimax-mcp`) grouped by provider into user or workspace `mcp.json` with safe `inputs` array definitions.
 5. **Status Bar Quota Indicator & Rich Dashboard Tooltip**:
-   - **Status Bar**: Renders bundled offline **Datatype pie chart icons** with exact 1% granularity (`$(copilot-provider-bridge-p<pct>) <pct>%`) for percentage plans (Z.ai, Kimi) or exact balance (e.g. `¥299.79`) for currency models. Supports **Auto-Select active provider mode** or explicit provider pinning.
-   - **Hover Dashboard Tooltip**: Live Markdown dashboard with dynamic high-resolution SVG progress meters, multi-window reset countdowns (5-hour rolling window + weekly membership allowance), and clickable action triggers (`[🔄 Refresh]`, `[📌 Pin / Unpin]`, `[🔑 Configure Keys]`, `[🩺 Diagnostics]`).
+   - **Status Bar**: Renders bundled offline **Datatype pie chart icons** with exact 1% granularity (`$(copilot-provider-bridge-p<pct>) <pct>%`) for percentage plans (Z.ai, Kimi) or exact balance (e.g. `¥123.45`) for currency models. The badge shows only the provider you **explicitly select** — VS Code exposes no API to detect which chat model is active, so there is deliberately no auto-select guessing. When no provider is selected, a neutral placeholder is shown and the hover tooltip still lists all configured plans.
+   - **Hover Dashboard Tooltip**: Live Markdown dashboard with dynamic high-resolution SVG progress meters, multi-window reset countdowns (5-hour rolling window + weekly membership allowance), and clickable action triggers (`[🔄 Refresh]`, `[📌 Select / Clear]`, `[🔑 Configure Keys]`, `[🩺 Diagnostics]`).
 6. **Diagnostics & Factory Reset**: Built-in connectivity testing command and a 1-click factory reset command (`Copilot Provider Bridge: Reset All Configuration & Clear Secrets`) to wipe extension secrets, reset global state, and purge bridge model/MCP configurations safely.
 
 ## Providers & Supported Models
@@ -95,7 +95,7 @@ Copilot Provider Bridge configures models and tools for VS Code's native BYOK en
 - **Copilot Provider Bridge: Configure MCP Tools** — select target (User Profile Global or Workspace `.vscode/mcp.json`) and choose MCP presets grouped by provider.
 - **Copilot Provider Bridge: Remove MCP Server** — choose an MCP server to remove from configuration.
 - **Copilot Provider Bridge: Configure Usage API Key** — securely store or update provider keys in extension SecretStorage for live status bar quota polling.
-- **Copilot Provider Bridge: Select Pinned Status Bar Provider** — switch which provider's usage badge appears in the bottom status bar.
+- **Copilot Provider Bridge: Select Status Bar Provider** — choose which provider's usage badge appears in the bottom status bar (or clear it for a neutral placeholder).
 - **Copilot Provider Bridge: Refresh Plan Quotas & Balances** — query all active provider endpoints and update the status bar tooltip.
 - **Copilot Provider Bridge: Select Vision Agent Model** — choose which multimodal model powers automatic visual analysis for text-only coding models.
 - **Copilot Provider Bridge: Run Diagnostics & Connectivity Test** — test connectivity to all configured model endpoints and print a detailed report to the Output Channel.
