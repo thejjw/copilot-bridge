@@ -92,72 +92,72 @@
     "commands": [
       {
         "command": "copilot-provider-bridge.quickSetup",
-        "title": "Copilot Provider Bridge: Quick Setup (Models & MCP Tools)",
+        "title": "Quick Setup (Models & MCP Tools)",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.addModel",
-        "title": "Copilot Provider Bridge: Add Model",
+        "title": "Add Model",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.removeModel",
-        "title": "Copilot Provider Bridge: Remove Model",
+        "title": "Remove Model",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.listModels",
-        "title": "Copilot Provider Bridge: List Models",
+        "title": "List Models",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.configureMcp",
-        "title": "Copilot Provider Bridge: Configure MCP Tools",
+        "title": "Configure MCP Tools",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.removeMcp",
-        "title": "Copilot Provider Bridge: Remove MCP Server",
+        "title": "Remove MCP Server",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.configureUsageKey",
-        "title": "Copilot Provider Bridge: Configure Usage API Key",
+        "title": "Configure Usage API Key",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.selectStatusBarProvider",
-        "title": "Copilot Provider Bridge: Select Pinned Status Bar Provider",
+        "title": "Select Pinned Status Bar Provider",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.refreshUsage",
-        "title": "Copilot Provider Bridge: Refresh Plan Quotas & Balances",
+        "title": "Refresh Plan Quotas & Balances",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.selectVisionModel",
-        "title": "Copilot Provider Bridge: Select Vision Agent Model",
+        "title": "Select Vision Agent Model",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.runDiagnostics",
-        "title": "Copilot Provider Bridge: Run Diagnostics & Connectivity Test",
+        "title": "Run Diagnostics & Connectivity Test",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.showDebugLogs",
-        "title": "Copilot Provider Bridge: Show Debug Output Logs",
+        "title": "Show Debug Output Logs",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.toggleDebugLogging",
-        "title": "Copilot Provider Bridge: Toggle Debug Logging",
+        "title": "Toggle Debug Logging",
         "category": "Copilot Provider Bridge"
       },
       {
         "command": "copilot-provider-bridge.resetConfiguration",
-        "title": "Copilot Provider Bridge: Reset All Configuration & Clear Secrets",
+        "title": "Reset All Configuration & Clear Secrets",
         "category": "Copilot Provider Bridge"
       }
     ],

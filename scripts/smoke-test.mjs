@@ -473,6 +473,9 @@ check('package.json contributes inputSchema with file_path & image_url',
   contribTool?.inputSchema?.properties?.file_path !== undefined &&
   contribTool?.inputSchema?.properties?.image_url !== undefined
 );
+for (const cmd of pkgJson.contributes?.commands ?? []) {
+  check(`command "${cmd.command}" title does not duplicate category`, !cmd.title.startsWith(cmd.category), `title="${cmd.title}"`);
+}
 
 const visionTool = new CopilotProviderBridgeVisionTool(mockContext);
 // Test backend resolution: with mock zai key, should resolve GLM-4.6V or preferred
