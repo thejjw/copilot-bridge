@@ -372,14 +372,13 @@ const mockContext = {
   },
 };
 const sbManager = new UsageStatusBarManager(mockContext);
-check('sbManager initializes with default active provider zai', sbManager.getActiveProviderId() === 'zai');
+check('sbManager initializes with no provider selected', sbManager.getSelectedProviderId() === undefined);
 await sbManager.setPinnedProvider('deepseek');
-check('sbManager persists and returns pinned provider deepseek', sbManager.getActiveProviderId() === 'deepseek');
+check('sbManager persists and returns selected provider deepseek', sbManager.getSelectedProviderId() === 'deepseek');
 check('mockGlobalState stored pinned provider', mockGlobalState.get('copilotProviderBridge.pinnedProvider') === 'deepseek');
 await sbManager.setPinnedProvider(undefined);
-check('sbManager unpin restores auto-select mode', sbManager.getActiveProviderId() === 'zai');
-check('mockGlobalState cleared pinned provider on unpin', mockGlobalState.get('copilotProviderBridge.pinnedProvider') === undefined);
-await sbManager.setPinnedProvider('zai');
+check('sbManager clear restores no-selection mode', sbManager.getSelectedProviderId() === undefined);
+check('mockGlobalState cleared pinned provider on clear', mockGlobalState.get('copilotProviderBridge.pinnedProvider') === undefined);
 const zaiReport = {
   providerId: 'zai',
   providerName: 'Z.ai GLM',
@@ -444,7 +443,11 @@ check('tooltip contains Kimi Weekly Membership reset', tooltipText.includes('Wee
 check('tooltip does not contain duplicate Reset Reset', !tooltipText.includes('Reset Reset'));
 await sbManager.setPinnedProvider('deepseek');
 check('balance model status bar text is strictly balance amount "¥299.79"', mockStatusBarItem.text === '¥299.79', `got "${mockStatusBarItem.text}"`);
-// Test fallback when neither percentage nor balance is present, or when reports is empty
+// Clearing the selection with reports present must render the neutral placeholder,
+// never substitute another provider's metric
+await sbManager.setPinnedProvider(undefined);
+check('no selection with reports renders neutral placeholder "Copilot-Provider-Bridge"', mockStatusBarItem.text === 'Copilot-Provider-Bridge', `got "${mockStatusBarItem.text}"`);
+// Empty reports also render the neutral placeholder
 sbManager['_reports'].clear();
 sbManager.render();
 check('empty reports status bar text is strictly "Copilot-Provider-Bridge"', mockStatusBarItem.text === 'Copilot-Provider-Bridge', `got "${mockStatusBarItem.text}"`);

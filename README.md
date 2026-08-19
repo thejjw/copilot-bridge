@@ -9,8 +9,8 @@ Enables **VS Code Copilot AI features** for users via existing third-party AI co
 3. **Built-in Vision Agent Tool**: Allows pure text-only models (like `GLM-5.3` and `DeepSeek V4 Pro`) to automatically delegate screenshot, UI mockup, and diagram inspection to any configured multimodal backend (`GLM-4.6V`, `GLM-5V-Turbo`, `Gemini 2.5 Flash`, `MiniMax M3`, `Kimi K3`, `Qwen 3.8 Max`).
 4. **Companion MCP Tools**: Configures verified MCP tool presets (`web-search-prime`, `web-reader`, `zread`, `zai-mcp-server`, `minimax-mcp`) grouped by provider into user or workspace `mcp.json` with safe `inputs` array definitions.
 5. **Status Bar Quota Indicator & Rich Dashboard Tooltip**:
-   - **Status Bar**: Renders bundled offline **Datatype pie chart icons** with exact 1% granularity (`$(copilot-provider-bridge-p<pct>) <pct>%`) for percentage plans (Z.ai, Kimi) or exact balance (e.g. `¥299.79`) for currency models. Supports **Auto-Select active provider mode** or explicit provider pinning.
-   - **Hover Dashboard Tooltip**: Live Markdown dashboard with dynamic high-resolution SVG progress meters, multi-window reset countdowns (5-hour rolling window + weekly membership allowance), and clickable action triggers (`[🔄 Refresh]`, `[📌 Pin / Unpin]`, `[🔑 Configure Keys]`, `[🩺 Diagnostics]`).
+   - **Status Bar**: Renders bundled offline **Datatype pie chart icons** with exact 1% granularity (`$(copilot-provider-bridge-p<pct>) <pct>%`) for percentage plans (Z.ai, Kimi) or exact balance (e.g. `¥123.45`) for currency models. The badge shows only the provider you **explicitly select** — VS Code exposes no API to detect which chat model is active, so there is deliberately no auto-select guessing. When no provider is selected, a neutral placeholder is shown and the hover tooltip still lists all configured plans.
+   - **Hover Dashboard Tooltip**: Live Markdown dashboard with dynamic high-resolution SVG progress meters, multi-window reset countdowns (5-hour rolling window + weekly membership allowance), and clickable action triggers (`[🔄 Refresh]`, `[📌 Select / Clear]`, `[🔑 Configure Keys]`, `[🩺 Diagnostics]`).
 6. **Diagnostics & Factory Reset**: Built-in connectivity testing command and a 1-click factory reset command (`Copilot Provider Bridge: Reset All Configuration & Clear Secrets`) to wipe extension secrets, reset global state, and purge bridge model/MCP configurations safely.
 
 ## Providers & Supported Models
@@ -95,7 +95,7 @@ Copilot Provider Bridge configures models and tools for VS Code's native BYOK en
 - **Copilot Provider Bridge: Configure MCP Tools** — select target (User Profile Global or Workspace `.vscode/mcp.json`) and choose MCP presets grouped by provider.
 - **Copilot Provider Bridge: Remove MCP Server** — choose an MCP server to remove from configuration.
 - **Copilot Provider Bridge: Configure Usage API Key** — securely store or update provider keys in extension SecretStorage for live status bar quota polling.
-- **Copilot Provider Bridge: Select Pinned Status Bar Provider** — switch which provider's usage badge appears in the bottom status bar.
+- **Copilot Provider Bridge: Select Status Bar Provider** — choose which provider's usage badge appears in the bottom status bar (or clear it for a neutral placeholder).
 - **Copilot Provider Bridge: Refresh Plan Quotas & Balances** — query all active provider endpoints and update the status bar tooltip.
 - **Copilot Provider Bridge: Select Vision Agent Model** — choose which multimodal model powers automatic visual analysis for text-only coding models.
 - **Copilot Provider Bridge: Run Diagnostics & Connectivity Test** — test connectivity to all configured model endpoints and print a detailed report to the Output Channel.
@@ -116,7 +116,7 @@ git clone https://github.com/thejjw/copilot-provider-bridge
 cd copilot-provider-bridge
 npm install
 npm run package
-code --install-extension copilot-provider-bridge-0.1.3.vsix
+code --install-extension copilot-provider-bridge-0.1.4.vsix
 ```
 
 ### Upgrading from v0.1.0
@@ -141,7 +141,7 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
 ### 2. Extension SecretStorage & Privacy Safeguards
 - **Encrypted Background Storage**: API keys validated during setup are concurrently stored in VS Code's encrypted `SecretStorage` (`context.secrets` via Windows DPAPI, macOS Keychain, or Linux Secret Service) for local quota polling, status bar usage indicators, and diagnostic connectivity probes.
 - **Zero Intermediate Proxy / Zero-Telemetry**: Copilot Provider Bridge does not proxy, intercept, or relay your chat traffic. All chat requests travel directly from VS Code to official provider endpoints over encrypted HTTPS/TLS.
-- **Log Sanitization**: All keys are automatically redacted in extension logs and Output Channel messages (`Logger.maskSecret()` $\rightarrow$ `5fc3...788`). Connectivity diagnostics proactively sanitize any reflected credentials from upstream error responses.
+- **Log Sanitization**: All keys are automatically redacted in extension logs and Output Channel messages (`Logger.maskSecret()` $\rightarrow$ `1234...567`). Connectivity diagnostics proactively sanitize any reflected credentials from upstream error responses.
 - **Factory Reset**: You can clear all extension secrets and purge bridge configurations at any time via the Command Palette: **`Copilot Provider Bridge: Reset All Configuration & Clear Secrets`**.
 
 ### 3. Known Limitations & Security Tradeoffs
@@ -157,6 +157,7 @@ keys because VS Code SecretStorage data is scoped to the extension ID.
   - Use **`Copilot Provider Bridge: Reset All Configuration & Clear Secrets`** to purge all stored credentials and bridge definitions from your machine.
 - **Future Roadmap**:
   - If VS Code introduces an extension-accessible secret bridge for Custom Endpoints, or if Copilot Provider Bridge implements an in-process `vscode.lm.registerLanguageModelChatProvider` runtime streaming provider, credentials can be held exclusively in memory and `context.secrets`.
+  - **Status bar auto-select** (removed): the badge previously tried to guess the active provider from quota shape, which was deterministic-but-wrong (it always picked the first configured percentage plan). If VS Code ever exposes an API to observe the currently selected chat model (e.g. an `onDidChangeChatModel` event or a readable `chat.selectedModel` context), auto-select can return as a *true* active-model tracker rather than a heuristic.
 
 ## How it works
 
