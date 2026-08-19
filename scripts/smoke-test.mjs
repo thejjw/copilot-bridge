@@ -195,7 +195,7 @@ for (const p of providers) {
     check(`[${p.id}/${cfgM.id}] apiType is valid`, cfgM.apiType === 'messages' || cfgM.apiType === 'chat-completions');
   }
 }
-check('total models verified across all active providers', totalModelsChecked === 19, `total=${totalModelsChecked}`);
+check('total models verified across all active providers', totalModelsChecked === 22, `total=${totalModelsChecked}`);
 
 const testCfg = [providerToConfig(providers[0], [providers[0].models[0]], 'old-key')];
 const existingIdx = findGroupIndex(testCfg, providers[0].id);
@@ -246,10 +246,26 @@ check('MiniMax-M3 is present', mmGroup.models.some((m) => m.id === 'MiniMax-M3')
 
 // Kimi bare model ID check
 const kimiGroup = providerToConfig(providers.find((p) => p.id === 'kimi'), providers.find((p) => p.id === 'kimi').models);
+check('Kimi has exactly 4 models', kimiGroup.models.length === 4, `got ${kimiGroup.models.length}`);
 const k3 = kimiGroup.models.find((m) => m.id === 'k3');
 check('Kimi model id is bare k3 (not k3[1m])', k3?.id === 'k3', `got ${k3?.id}`);
 check('Kimi k3 contextWindow sum is 1,048,576', k3?.maxInputTokens + k3?.maxOutputTokens === 1048576);
-
+check('Kimi k3 reasoning effort levels are explicitly [low, high, max]',
+  JSON.stringify(k3?.supportsReasoningEffort) === JSON.stringify(['low', 'high', 'max']),
+  JSON.stringify(k3?.supportsReasoningEffort)
+);
+const k3_256k = kimiGroup.models.find((m) => m.id === 'k3-256k');
+check('Kimi k3-256k contextWindow sum is 262,144', k3_256k?.maxInputTokens + k3_256k?.maxOutputTokens === 262144);
+check('Kimi k3-256k reasoning effort levels are explicitly [low, high, max]',
+  JSON.stringify(k3_256k?.supportsReasoningEffort) === JSON.stringify(['low', 'high', 'max']),
+  JSON.stringify(k3_256k?.supportsReasoningEffort)
+);
+const kimiCoding = kimiGroup.models.find((m) => m.id === 'kimi-for-coding');
+check('Kimi kimi-for-coding contextWindow sum is 262,144', kimiCoding?.maxInputTokens + kimiCoding?.maxOutputTokens === 262144);
+check('Kimi kimi-for-coding thinking is true', kimiCoding?.thinking === true);
+const kimiHighSpeed = kimiGroup.models.find((m) => m.id === 'kimi-for-coding-highspeed');
+check('Kimi kimi-for-coding-highspeed contextWindow sum is 262,144', kimiHighSpeed?.maxInputTokens + kimiHighSpeed?.maxOutputTokens === 262144);
+check('Kimi kimi-for-coding-highspeed thinking is true', kimiHighSpeed?.thinking === true);
 // Qwen check
 const qwenGroup = providerToConfig(providers.find((p) => p.id === 'qwen'), providers.find((p) => p.id === 'qwen').models);
 check('qwen3.7-max is removed', !qwenGroup.models.some((m) => m.id === 'qwen3.7-max'));

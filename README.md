@@ -22,7 +22,10 @@ Enables **VS Code Copilot AI features** for users via existing third-party AI co
 | **Z.ai GLM** | Coding Plan (Sub) | OpenAI | `https://api.z.ai/api/coding/paas/v4/chat/completions` | `glm-5v-turbo` | 202,752 (~200K) | 131,072 (128K) | Dynamic Thinking | Yes |
 | **DeepSeek** | Top-up / Payg | Anthropic | `https://api.deepseek.com/anthropic/v1/messages` | `deepseek-v4-pro`, `deepseek-v4-flash` | 1,000,000 (1M) | 393,216 (384K) | `low`, `medium`, `high` | No |
 | **MiniMax** | Token Plan (Sub) | Anthropic | `https://api.minimax.io/anthropic/v1/messages` | `MiniMax-M3` | 1,000,000 (1M) | 131,072 (128K) | `low`, `medium`, `high` | Yes |
-| **Kimi** | Code Plan (Sub) | Anthropic | `https://api.kimi.com/coding/v1/messages` | `k3` | 1,048,576 (1M) | 131,072 (128K) | `low`, `medium`, `high` | Yes |
+| **Kimi** | Code Plan (Sub) | Anthropic | `https://api.kimi.com/coding/v1/messages` | `k3` | 1,048,576 (1M) | 131,072 (128K) | `low`, `high`, `max` | Yes |
+| **Kimi** | Code Plan (Sub) | Anthropic | `https://api.kimi.com/coding/v1/messages` | `k3-256k` | 262,144 (256K) | 65,536 (64K) | `low`, `high`, `max` | Yes |
+| **Kimi** | Code Plan (Sub) | Anthropic | `https://api.kimi.com/coding/v1/messages` | `kimi-for-coding` | 262,144 (256K) | 65,536 (64K) | Forced Thinking | Yes |
+| **Kimi** | Code Plan (Sub) | Anthropic | `https://api.kimi.com/coding/v1/messages` | `kimi-for-coding-highspeed` | 262,144 (256K) | 65,536 (64K) | Forced Thinking (6× Speed) | Yes |
 | **Qwen Token Plan** | Token Plan (Sub) | Anthropic | `https://token-plan.ap-southeast-1.maas.aliyuncs.com/apps/anthropic/v1/messages` | `qwen3.8-max` | 1,000,000 (1M) | 131,072 (128K) | `low`, `medium`, `high` | Yes |
 | **Qwen Token Plan** | Token Plan (Sub) | Anthropic | `https://token-plan.ap-southeast-1.maas.aliyuncs.com/apps/anthropic/v1/messages` | `qwen3.7-plus` | 262,144 (256K) | 32,768 (32K) | `low`, `medium`, `high` | Yes |
 | **Qwen Token Plan** | Token Plan (Sub) | Anthropic | `https://token-plan.ap-southeast-1.maas.aliyuncs.com/apps/anthropic/v1/messages` | `qwen3.6-flash` | 128,000 (128K) | 16,384 (16K) | No | No |
