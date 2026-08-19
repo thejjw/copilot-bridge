@@ -428,6 +428,24 @@ const kimiReport = {
   lastUpdated: new Date(),
 };
 sbManager['_reports'].set('kimi', kimiReport);
+const mmReport = {
+  providerId: 'minimax',
+  providerName: 'MiniMax',
+  percentageRemaining: 99,
+  details: [
+    '5-hour interval: 99% remaining',
+    'Weekly limit: 97% remaining',
+    'Video models: 0/3 interval, 0/21 weekly',
+  ],
+  resetCountdown: 'in 2h 30m',
+  resets: [
+    { label: '5-Hour Rolling Window', countdown: 'in 2h 30m' },
+    { label: 'Weekly Allowance', countdown: 'in 4d 16h' },
+  ],
+  status: 'ok',
+  lastUpdated: new Date(),
+};
+sbManager['_reports'].set('minimax', mmReport);
 
 sbManager.render();
 const tooltipText = mockStatusBarItem.tooltip?.value ?? '';
@@ -440,6 +458,8 @@ check('tooltip contains 5-Hour Token Limit reset', tooltipText.includes('5-Hour 
 check('tooltip contains Call Quota Window reset', tooltipText.includes('Call Quota Window Reset'));
 check('tooltip contains Kimi 5-Hour Rolling Window reset', tooltipText.includes('5-Hour Rolling Window Reset'));
 check('tooltip contains Kimi Weekly Membership reset', tooltipText.includes('Weekly Membership Reset'));
+check('tooltip contains MiniMax 5-Hour Rolling Window reset', tooltipText.includes('5-Hour Rolling Window Reset'));
+check('tooltip contains MiniMax Weekly Allowance reset', tooltipText.includes('Weekly Allowance Reset'));
 check('tooltip does not contain duplicate Reset Reset', !tooltipText.includes('Reset Reset'));
 await sbManager.setPinnedProvider('deepseek');
 check('balance model status bar text is strictly balance amount "¥299.79"', mockStatusBarItem.text === '¥299.79', `got "${mockStatusBarItem.text}"`);

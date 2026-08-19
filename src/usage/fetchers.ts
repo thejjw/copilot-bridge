@@ -176,8 +176,16 @@ export async function fetchMinimaxUsage(apiKey: string): Promise<UsageReport> {
         model_name?: string;
         current_interval_remaining_percent?: number;
         current_weekly_remaining_percent?: number;
-        remains_time?: number;
+        current_interval_total_count?: number;
+        current_interval_usage_count?: number;
+        current_weekly_total_count?: number;
+        current_weekly_usage_count?: number;
+        start_time?: number;
         end_time?: number;
+        remains_time?: number;
+        weekly_start_time?: number;
+        weekly_end_time?: number;
+        weekly_remains_time?: number;
       }>;
     };
 
@@ -185,31 +193,76 @@ export async function fetchMinimaxUsage(apiKey: string): Promise<UsageReport> {
     const pct = general?.current_interval_remaining_percent ?? 100;
     const weeklyPct = general?.current_weekly_remaining_percent;
 
-    const details: string[] = [`5-hour interval: ${pct}% remaining`];
+    const details: string[] = [];
+    if (pct !== undefined) {
+      if (general?.current_interval_total_count && general.current_interval_total_count > 0) {
+        details.push(
+          `5-hour limit: ${pct}% remaining (${general.current_interval_usage_count ?? 0} / ${general.current_interval_total_count} calls)`
+        );
+      } else {
+        details.push(`5-hour interval: ${pct}% remaining`);
+      }
+    }
+
     if (weeklyPct !== undefined) {
-      details.push(`Weekly interval: ${weeklyPct}% remaining`);
+      if (general?.current_weekly_total_count && general.current_weekly_total_count > 0) {
+        details.push(
+          `Weekly limit: ${weeklyPct}% remaining (${general.current_weekly_usage_count ?? 0} / ${general.current_weekly_total_count} calls)`
+        );
+      } else {
+        details.push(`Weekly limit: ${weeklyPct}% remaining`);
+      }
+    }
+
+    // Check for auxiliary model quotas (e.g. video)
+    const video = data.model_remains?.find((m) => m.model_name === 'video');
+    if (video) {
+      if (
+        (video.current_interval_total_count !== undefined && video.current_interval_total_count > 0) ||
+        (video.current_weekly_total_count !== undefined && video.current_weekly_total_count > 0)
+      ) {
+        details.push(
+          `Video models: ${video.current_interval_usage_count ?? 0}/${video.current_interval_total_count ?? 0} interval, ${video.current_weekly_usage_count ?? 0}/${video.current_weekly_total_count ?? 0} weekly`
+        );
+      }
     }
 
     const resets: QuotaResetInfo[] = [];
 
-    if (general?.end_time && general.end_time > Date.now()) {
-      const d = new Date(general.end_time);
+    // 1. 5-Hour rolling interval reset
+    const intervalTarget = general?.end_time
+      ? new Date(general.end_time)
+      : general?.remains_time
+      ? new Date(Date.now() + general.remains_time)
+      : undefined;
+
+    if (intervalTarget && intervalTarget.getTime() > Date.now()) {
       resets.push({
-        label: '5-Hour Interval',
-        countdown: formatCountdown(d),
-        targetDate: d,
-      });
-    } else if (general?.remains_time && general.remains_time > 0) {
-      const d = new Date(Date.now() + general.remains_time);
-      resets.push({
-        label: '5-Hour Interval',
-        countdown: formatCountdown(d),
-        targetDate: d,
+        label: '5-Hour Rolling Window',
+        countdown: formatCountdown(intervalTarget),
+        targetDate: intervalTarget,
       });
     }
 
-    const primaryReset = resets[0];
+    // 2. Weekly quota allowance reset
+    const weeklyTarget = general?.weekly_end_time
+      ? new Date(general.weekly_end_time)
+      : general?.weekly_remains_time
+      ? new Date(Date.now() + general.weekly_remains_time)
+      : undefined;
 
+    if (weeklyTarget && weeklyTarget.getTime() > Date.now()) {
+      resets.push({
+        label: 'Weekly Allowance',
+        countdown: formatCountdown(weeklyTarget),
+        targetDate: weeklyTarget,
+      });
+    }
+
+    // Sort by nearest reset
+    resets.sort((a, b) => (a.targetDate?.getTime() ?? 0) - (b.targetDate?.getTime() ?? 0));
+
+    const primaryReset = resets[0];
     const status: UsageStatus = pct <= 10 ? 'critical' : pct <= 30 ? 'low' : 'ok';
 
     return {
