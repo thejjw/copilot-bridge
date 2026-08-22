@@ -105,7 +105,7 @@ export const PROVIDERS: Provider[] = [
   {
     id: 'deepseek',
     name: 'DeepSeek',
-    description: 'DeepSeek V4 Pro / Flash (1M, 384K Out).',
+    description: 'DeepSeek V4 Pro / Flash Vision Exp (1M, 384K Out).',
     endpointUrl: 'https://api.deepseek.com/anthropic/v1/messages',
     apiType: 'messages',
     secretInput: 'copilot-provider-bridge.deepseek.apiKey',
@@ -126,10 +126,10 @@ export const PROVIDERS: Provider[] = [
         reasoningEffortFormat: 'messages',
       },
       {
-        id: 'deepseek-v4-flash',
-        name: 'DeepSeek V4 Flash (1M, 384K Out)',
+        id: 'deepseek-v4-flash-vision-exp',
+        name: 'DeepSeek V4 Flash Vision Exp (1M, 384K Out)',
         toolCalling: true,
-        vision: false,
+        vision: true,
         contextWindow: 1_000_000,
         maxOutputTokens: 393_216,
         maxInputTokens: 606_784,

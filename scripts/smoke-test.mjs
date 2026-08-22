@@ -25,7 +25,7 @@
 //      - Asserts status bar text is ultra-minimal (only single pie glyph or balance number).
 //      - Asserts hover tooltip renders all details and error messages.
 //   5. Vision Agent Tool & Backends:
-//      - Asserts VISION_BACKENDS has 7 backends (GLM-4.6V, GLM-5V-Turbo, Gemini Flash/Pro, MiniMax M3, Kimi K3, Qwen 3.8 Max).
+//      - Asserts VISION_BACKENDS has 8 backends (GLM-4.6V, GLM-5V-Turbo, Gemini Flash/Pro, DeepSeek V4 Flash Vision Exp, MiniMax M3, Kimi K3, Qwen 3.8 Max, NVIDIA NIM).
 //      - Asserts CopilotProviderBridgeVisionTool.toolId is provider_bridge_analyze_visual.
 //      - Asserts tool resolution falls back gracefully when keys are missing or preferred is selected.
 //   6. Packaged .vsix existence and non-zero size.
@@ -235,9 +235,18 @@ check('DeepSeek V4 Pro maxOutputTokens is 384K (393,216)', dsV4Pro?.maxOutputTok
 check('DeepSeek V4 Pro maxInputTokens is 606,784', dsV4Pro?.maxInputTokens === 606784, `got ${dsV4Pro?.maxInputTokens}`);
 check('DeepSeek V4 Pro sum is 1,000,000', dsV4Pro?.maxInputTokens + dsV4Pro?.maxOutputTokens === 1000000);
 
+// DeepSeek V4 Flash Vision Exp check (replaced deepseek-v4-flash)
+const dsV4FlashVisionExp = dsGroup.models.find((m) => m.id === 'deepseek-v4-flash-vision-exp');
+check('DeepSeek V4 Flash Vision Exp is present', dsV4FlashVisionExp !== undefined);
+check('DeepSeek V4 Flash Vision Exp has vision enabled', dsV4FlashVisionExp?.vision === true);
+check('DeepSeek V4 Flash Vision Exp maxOutputTokens is 384K (393,216)', dsV4FlashVisionExp?.maxOutputTokens === 393216, `got ${dsV4FlashVisionExp?.maxOutputTokens}`);
+check('DeepSeek V4 Flash Vision Exp maxInputTokens is 606,784', dsV4FlashVisionExp?.maxInputTokens === 606784, `got ${dsV4FlashVisionExp?.maxInputTokens}`);
+check('DeepSeek V4 Flash Vision Exp sum is 1,000,000', dsV4FlashVisionExp?.maxInputTokens + dsV4FlashVisionExp?.maxOutputTokens === 1000000);
+
 // Removed models check
 check('deepseek-reasoner is removed', !dsGroup.models.some((m) => m.id === 'deepseek-reasoner'));
 check('deepseek-chat is removed', !dsGroup.models.some((m) => m.id === 'deepseek-chat'));
+check('old deepseek-v4-flash is removed', !dsGroup.models.some((m) => m.id === 'deepseek-v4-flash'));
 
 // MiniMax check
 const mmGroup = providerToConfig(providers.find((p) => p.id === 'minimax'), providers.find((p) => p.id === 'minimax').models);
@@ -484,7 +493,8 @@ await sbManager.setPinnedProvider('gemini');
 check('no-metric model status bar text is strictly "Copilot-Provider-Bridge"', mockStatusBarItem.text === 'Copilot-Provider-Bridge', `got "${mockStatusBarItem.text}"`);
 
 console.log('\n-- 6. Vision Agent Tool & Backends --');
-check('VISION_BACKENDS exported and has 7 options', Array.isArray(VISION_BACKENDS) && VISION_BACKENDS.length === 7, `length=${VISION_BACKENDS?.length}`);
+check('VISION_BACKENDS exported and has 8 options', Array.isArray(VISION_BACKENDS) && VISION_BACKENDS.length === 8, `length=${VISION_BACKENDS?.length}`);
+check('DeepSeek V4 Flash Vision Exp backend present (anthropic apiType)', VISION_BACKENDS.some((b) => b.id === 'deepseek-v4-flash-vision-exp' && b.apiType === 'anthropic'));
 check('CopilotProviderBridgeVisionTool.toolId is provider_bridge_analyze_visual', CopilotProviderBridgeVisionTool.toolId === 'provider_bridge_analyze_visual');
 // Check package.json contribution fields
 const pkgJson = JSON.parse(await readFile(join(here, '..', 'package.json'), 'utf8'));

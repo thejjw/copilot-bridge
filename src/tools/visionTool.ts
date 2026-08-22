@@ -1,4 +1,4 @@
-// Built-in LanguageModelTool that empowers text-only models (GLM-5.3, DeepSeek V4, etc.)
+// Built-in LanguageModelTool that empowers text-only models (GLM-5.3, DeepSeek V4 Pro, etc.)
 // to delegate visual analysis, screenshot inspection, and OCR to any configured multimodal backend.
 
 import * as fs from 'node:fs/promises';
@@ -56,6 +56,15 @@ export const VISION_BACKENDS: VisionBackendOption[] = [
     apiType: 'openai',
   },
   */
+  {
+    id: 'deepseek-v4-flash-vision-exp',
+    name: 'DeepSeek V4 Flash Vision (Exp)',
+    providerId: 'deepseek',
+    description: 'DeepSeek multimodal model matching V4 Flash text capability.',
+    model: 'deepseek-v4-flash-vision-exp',
+    endpointUrl: 'https://api.deepseek.com/anthropic/v1/messages',
+    apiType: 'anthropic',
+  },
   {
     id: 'minimax-m3',
     name: 'MiniMax M3 (MiniMax Vision)',
